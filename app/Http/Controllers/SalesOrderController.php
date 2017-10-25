@@ -159,6 +159,7 @@ class SalesOrderController extends Controller
         // d($salesOrder,1);
         $salesOrderId = \DB::table('sales_orders')->insertGetId($salesOrder);
 
+
         for ($i = 0; $i < count($itemIds); $i++) {
             foreach ($product as $key => $item) {
 
