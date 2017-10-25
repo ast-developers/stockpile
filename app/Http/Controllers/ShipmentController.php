@@ -6,20 +6,23 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\EmailController;
 use App\Model\Shipment;
 use App\Http\Requests;
+use App\Model\Orders;
 use DB;
 use PDF;
 use Session;
 
 class ShipmentController extends Controller
 {
-    public function __construct(Shipment $shipment,EmailController $email){
+    public function __construct(Shipment $shipment,EmailController $email, Orders $orders){
      
      /**
      * Set the database connection. reference app\helper.php
      */   
         //selectDatabase();
         $this->shipment = $shipment;
-         $this->email = $email;
+        $this->email = $email;
+        $this->order = $orders;
+
     }
 
     public function index()
@@ -153,6 +156,36 @@ class ShipmentController extends Controller
     }
 
     public function storeAutoShipment($orderNo){
+
+        //------Insert the stock record, like when we create it on auto invoice create----
+        $stockMoveEntry = DB::table('sales_orders')->where('order_no', '=', $orderNo)->get();
+
+        //Insert the record if not inserted before, at the time of invoice generation
+        if($stockMoveEntry){
+            $invoiceInfos = $this->order->getRestOrderItemsByOrderID($orderNo);
+            $orderInfo    = DB::table('sales_orders')->where('order_no', '=', $orderNo)->first();
+            $userId       = \Auth::user()->id;
+
+            foreach ($invoiceInfos as $i => $invoiceInfo) {
+                // create stockMove
+                $stockMove['stock_id']                 = $invoiceInfo->stock_id;
+                $stockMove['order_no']                 = $orderNo;
+                $stockMove['loc_code']                 = $orderInfo->from_stk_loc;
+                $stockMove['tran_date']                = date('Y-m-d');
+                $stockMove['person_id']                = $userId;
+                $stockMove['reference']                = 'store_out_' . $orderNo;
+                $stockMove['transaction_reference_id'] = $orderNo;
+                $stockMove['qty']                      = '-' . $invoiceInfo->item_rest;
+                $stockMove['price']                    = $invoiceInfo->unit_price;
+                $stockMove['trans_type']               = SALESINVOICE;
+                $stockMove['order_reference']          = $orderInfo->reference;
+
+                DB::table('stock_moves')->insertGetId($stockMove);
+            }
+        }
+
+        //-------Insertion in stock table----------
+
         $shipmentItem = $this->shipment->getAvailableItemsByOrderID($orderNo);
         
         $shipmentData['order_no'] =  $orderNo;

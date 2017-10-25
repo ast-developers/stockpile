@@ -68,6 +68,7 @@
         @endif
     </div> 
     <!--END-->
+
     <div class="box box-default">
       <div class="box-header text-center">
         <strong>{{ trans('message.invoice.payment_list') }}</strong>
@@ -101,20 +102,31 @@
               <td colspan="3" align="right"><strong>{{ trans('message.invoice.total') }}</stron></td><td align="right"><strong>{{Session::get('currency_symbol').number_format($sumInvoice,2,'.',',')}}</strong></td>
           </tbody>
         </table>
-        @else
+        @elseif(empty($paymentsList))
         <h5 class="text-center">{{ trans('message.invoice.no_payment') }}</h5>
-        @endif
-        <?php
+
+        <div class="btn-block-left-padding" style="margin-top:10px;">
+          <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
+        </div>
+
+        @else
+
+          <?php
           $totalDueAmount = getTotalPaidAmountByOrder($orderInfo->reference,$orderInfo->order_no);
-        ?>
-        @if($totalDueAmount>0)
-          <div class="btn-block-left-padding" style="margin-top:10px;">
-            <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
-          </div>
+          ?>
+          @if($totalDueAmount>0)
+            <div class="btn-block-left-padding" style="margin-top:10px;">
+              <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
+            </div>
+          @endif
+
         @endif
+
       </div>
     </div>
-    <div class="box box-default">
+
+
+  <div class="box box-default">
       <div class="box-header text-center">
         <strong>{{ trans('message.invoice.shipment_list') }}</strong>
       </div>
@@ -145,13 +157,8 @@
               <td colspan="2" align="right"><strong>{{ trans('message.invoice.total') }}</stron></td><td align="center"><strong>{{$sumShipment}}</strong></td>
           </tbody>
         </table>
-        @else
+        @elseif(empty($shipmentList))
         <h5 class="text-center">{{ trans('message.invoice.no_shipment') }}</h5>
-        @endif
-      </div>
-        @if($shipmentStatus=='available')
-
-         @if(!empty(Session::get('shipment_add')))
         <div class="box-body">
           <div class="row">
             <div class="col-md-6 btn-block-left-padding">
@@ -162,7 +169,27 @@
             </div>
           </div>
         </div>
+
+        @else
+
+          @if($shipmentStatus=='available')
+            @if(!empty(Session::get('shipment_add')))
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-md-6 btn-block-left-padding">
+                    <a href="{{URL::to('/')}}/shipment/add/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.manual_packing') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.table.manual_invoice_title') }}</a>
+                  </div>
+                  <div class="col-md-6 btn-block-right-padding">
+                    <a href="{{URL::to('/')}}/shipment/create-auto-shipment/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.auto_packing') }}" class="btn bg-orange btn-flat btn-block">{{ trans('message.table.automatic_invoice_title') }}</a>
+                  </div>
+                </div>
+              </div>
+            @endif
+          @endif
+
         @endif
-        @endif
+      </div>
+
     </div>       
+
 </div>

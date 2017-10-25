@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\EmailController;
 use App\Http\Requests;
 use DB;
+use Illuminate\Support\Facades\Session;
 
 class SettingController extends Controller
 {
@@ -471,6 +472,7 @@ class SettingController extends Controller
 
             $i++;
         }
+        Session::set('site_short_name', $request->site_short_name);
         //d($data,1);
 
         $currData = DB::table('preference')->where('category', "company")->get();
