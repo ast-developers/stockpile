@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\EmailController;
 use App\Http\Requests;
 use DB;
+use Illuminate\Support\Facades\Session;
 
 class SettingController extends Controller
 {
