@@ -471,6 +471,8 @@ class SettingController extends Controller
 
             $i++;
         }
+
+        Session::set('site_short_name', $request->site_short_name);
         //d($data,1);
 
         $currData = DB::table('preference')->where('category', "company")->get();
