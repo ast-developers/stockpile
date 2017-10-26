@@ -333,6 +333,9 @@ $(function() {
 
                 //Get Delivery Fee
                 var delivery_fee = parseFloat($("#delivery_price").val());
+                  if(isNaN(delivery_fee)){
+                      delivery_fee = 0;
+                  }
                 $("#deliveryFee").html(delivery_fee);
 
                 //Calculate tax total
@@ -379,6 +382,9 @@ $(function() {
 
                   //Get Delivery Fee
                   var delivery_fee = parseFloat($("#delivery_price").val());
+                  if(isNaN(delivery_fee)){
+                      delivery_fee = 0;
+                  }
                   $("#deliveryFee").html(delivery_fee);
 
 
@@ -478,6 +484,9 @@ $(function() {
 
         //Get Delivery Fee
         var delivery_fee = parseFloat($("#delivery_price").val());
+        if(isNaN(delivery_fee)){
+            delivery_fee = 0;
+        }
         $("#deliveryFee").html(delivery_fee);
 
       // Calculate taxTotal
@@ -519,6 +528,9 @@ $(function() {
 
         //Get Delivery Fee
         var delivery_fee = parseFloat($("#delivery_price").val());
+        if(isNaN(delivery_fee)){
+            delivery_fee = 0;
+        }
         $("#deliveryFee").html(delivery_fee);
 
       // Calculate taxTotal
@@ -574,6 +586,9 @@ $(function() {
     $(document).on('keyup', '.delivery_price', function(){
 
         var deliveryFee = parseFloat($(this).val());
+        if(isNaN(deliveryFee)){
+            deliveryFee = 0;
+        }
 
         // Fetch subTotal
         var subTotal = calculateSubTotal();
@@ -710,7 +725,10 @@ $(function() {
             },
             branch_id:{
               required:true
-            }                    
+            },
+            delivery_price: {
+                number:true
+            }
         }
     });
 
