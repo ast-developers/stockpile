@@ -49,7 +49,8 @@ class InvoiceController extends Controller
                     ->leftJoin('invoice_payment_terms','invoice_payment_terms.id','=','sales_orders.payment_term')
                     ->select("sales_orders.*","location.location_name",'invoice_payment_terms.days_before_due')
                     ->first();                    
-        $data['invoiceData'] = $this->order->getSalseOrderByID($invoiceNo,$data['saleDataInvoice']->from_stk_loc);
+        $data['invoiceData'] = $this->order->getSalseOrderByID($orderNo,$data['saleDataInvoice']->from_stk_loc);
+       
        //d($data['saleDataOrder']);
        //d($data['saleDataInvoice'],1);
 
