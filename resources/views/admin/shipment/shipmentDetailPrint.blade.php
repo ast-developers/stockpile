@@ -14,10 +14,13 @@ tr{ height:40px;}
 </style>
 <body>
   <div style="width:900px; margin:15px auto;">
-    <div style="width:450px; float:left; margin-top:20px;height:50px;">
+      <div style="float:left; margin-top:-50px;height:50px;">
+          <div style="margin-left:-14px;font-size:30px; font-weight:bold; color:#383838;"><img src="{{asset('public/img/judea-mini.png')}}" style="width:200px; height: 100px;" alt=""/></div>
+      </div>
+    <div style="width:450px; float:left; margin-top:70px;height:50px;">
    <div style="font-size:30px; font-weight:bold; color:#383838;">Shipment</div>
   </div>
-  <div style="width:450px; float:right;height:50px;">
+  <div style="width:450px; float:left; margin-top:70px;height:50px;">
     <div style="text-align:right; font-size:14px; color:#383838;"><strong></strong></div>
     <div style="text-align:right; font-size:14px; color:#383838;"><strong></strong></div>
   </div>
@@ -29,6 +32,8 @@ tr{ height:40px;}
     <div>{{ Session::get('company_street') }}</div>
     <div>{{ Session::get('company_city') }}, {{ Session::get('company_state') }}</div>
     <div>{{ Session::get('company_country_id') }}, {{ Session::get('company_zipCode') }}</div>
+    <div>+{{ "(".substr(Session::get('company_phone'), 0, 2).") ". substr(Session::get('company_phone'), 2, 9)}}</div>
+    <div>{{ Session::get('site_short_name') }}</div>
     </div>
     <div style="width:300px; float:left;font-size:15px; color:#383838; font-weight:400;">
       <div><strong>Ship To</strong></div>
