@@ -14,13 +14,20 @@ tr{ height:40px;}
 </style>
 <body>
   <div style="width:900px; margin:15px auto; padding-bottom:40px;">
-    <div style="font-weight:bold;font-size:30px;">Payment</div>
+
+      <div style="float:left; margin-top:-50px;height:50px;">
+          <div style="margin-left:-14px;font-size:30px; font-weight:bold; color:#383838;"><img src="{{asset('public/img/judea-mini.png')}}" style="width:200px; height: 100px;" alt=""/></div>
+      </div>
+
+    <div style="font-weight:bold;font-size:30px; margin-top:70px;">Payment</div>
     <div style="width:300px; float:left;">
       <div style="margin-top:20px;">
         <div style="font-size:16px; color:#000000; font-weight:bold;">{{ Session::get('company_name') }}</div>
         <div style="font-size:16px;">{{ Session::get('company_street') }}</div>
         <div style="font-size:16px;">{{ Session::get('company_city') }}, {{ Session::get('company_state') }}</div>
         <div style="font-size:16px;">{{ Session::get('company_country_id') }}, {{ Session::get('company_zipCode') }}</div>
+        <div>+{{ "(".substr(Session::get('company_phone'), 0, 2).") ". substr(Session::get('company_phone'), 2, 9)}}</div>
+        <div>{{ Session::get('site_short_name') }}</div>
       </div>
     </div>
 
