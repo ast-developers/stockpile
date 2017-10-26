@@ -50,7 +50,6 @@ class InvoiceController extends Controller
                     ->select("sales_orders.*","location.location_name",'invoice_payment_terms.days_before_due')
                     ->first();                    
         $data['invoiceData'] = $this->order->getSalseOrderByID($invoiceNo,$data['saleDataInvoice']->from_stk_loc);
-       
        //d($data['saleDataOrder']);
        //d($data['saleDataInvoice'],1);
 
