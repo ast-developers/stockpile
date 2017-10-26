@@ -84,6 +84,13 @@
               </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">{{ trans('message.table.delivery_price') }}</label>
+                    <input class="form-control delivery_price" id="delivery_price" type="text" name="delivery_price" value="0">
+                </div>
+            </div>
+
           <div class="col-md-3">
             <div class="form-group">
                 <label for="exampleInputEmail1">{{ trans('message.table.reference') }}<span class="text-danger"> *</span></label>
@@ -137,6 +144,7 @@
                   </tr>
 
                   <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee"></strong></td></tr>
                   <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.invoice.totalTax') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="taxTotal"></strong></td></tr>
                   <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="total" class="form-control" id = "grandTotal" readonly></td></tr>
                   </tbody>
@@ -323,9 +331,16 @@ $(function() {
                 var subTotal = calculateSubTotal();
                 $("#subTotal").html(subTotal);
 
+                //Get Delivery Fee
+                var delivery_fee = parseFloat($("#delivery_price").val());
+                $("#deliveryFee").html(delivery_fee);
+
+                //Calculate tax total
                 var taxTotal = calculateTaxTotal();
                 $("#taxTotal").text(taxTotal);
-                var grandTotal = (subTotal + taxTotal);
+
+                //Calculate grand total
+                var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
 
                 $('.tableInfo').show();
@@ -362,12 +377,17 @@ $(function() {
                 var subTotal = calculateSubTotal();
                 $("#subTotal").html(subTotal);
 
-                // Calculate taxTotal
+                  //Get Delivery Fee
+                  var delivery_fee = parseFloat($("#delivery_price").val());
+                  $("#deliveryFee").html(delivery_fee);
+
+
+                  // Calculate taxTotal
                 var taxTotal = calculateTaxTotal();
                 $("#taxTotal").text(taxTotal);
 
                 // Calculate GrandTotal
-                var grandTotal = (subTotal + taxTotal);
+                var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
 
               }
@@ -455,11 +475,16 @@ $(function() {
       // Calculate subTotal
       var subTotal = calculateSubTotal();
       $("#subTotal").html(subTotal);
+
+        //Get Delivery Fee
+        var delivery_fee = parseFloat($("#delivery_price").val());
+        $("#deliveryFee").html(delivery_fee);
+
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       $("#taxTotal").text(taxTotal);
       // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal);
+      var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
     });
@@ -491,11 +516,16 @@ $(function() {
       // Calculate subTotal
       var subTotal = calculateSubTotal();
       $("#subTotal").html(subTotal);
+
+        //Get Delivery Fee
+        var delivery_fee = parseFloat($("#delivery_price").val());
+        $("#deliveryFee").html(delivery_fee);
+
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       $("#taxTotal").text(taxTotal);
       // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal);
+      var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
     });
@@ -528,14 +558,38 @@ $(function() {
       // Calculate subTotal
       var subTotal = calculateSubTotal();
       $("#subTotal").html(subTotal);
+        //Fetch delivery fee
+        var deliveryFee = parseFloat($("#delivery_price").val());
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       $("#taxTotal").text(taxTotal);
       // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal);
+      var grandTotal = (subTotal + taxTotal + deliveryFee);
       $("#grandTotal").val(grandTotal);
 
     });
+
+
+    //Calculate the total on delivery fee changes on delivery text change event
+    $(document).on('keyup', '.delivery_price', function(){
+
+        var deliveryFee = parseFloat($(this).val());
+
+        // Fetch subTotal
+        var subTotal = calculateSubTotal();
+
+        //Set the value in delivery html
+        $("#deliveryFee").html(deliveryFee);
+
+        // Fetch Tax
+        var taxTotal = calculateTaxTotal();
+
+        // Calculate GrandTotal
+        var grandTotal = (subTotal + taxTotal + deliveryFee);
+        $("#grandTotal").val(grandTotal);
+
+    });
+
 
     $(document).on('change', '.taxList', function(ev){
       var taxRateValue = $(this).find(':selected').attr('taxrate');
@@ -549,11 +603,14 @@ $(function() {
       // Calculate subTotal
       var subTotal = calculateSubTotal();
       $("#subTotal").html(subTotal);
+        //Fetch delivery fee
+        var deliveryFee = parseFloat($("#delivery_price").val());
+
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       $("#taxTotal").text(taxTotal);
       // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal);
+      var grandTotal = (subTotal + taxTotal + deliveryFee);
       $("#grandTotal").val(grandTotal);
 
     });
@@ -575,11 +632,14 @@ $(function() {
 
             var subTotal = calculateSubTotal();
             $("#subTotal").html(subTotal);
+
+          //Fetch delivery fee
+          var deliveryFee = parseFloat($("#delivery_price").val());
            
             var taxTotal = calculateTaxTotal();
             $("#taxTotal").text(taxTotal);
             // Calculate GrandTotal
-            var grandTotal = (subTotal + taxTotal);
+            var grandTotal = (subTotal + taxTotal + deliveryFee);
             $("#grandTotal").val(grandTotal);           
 
         });

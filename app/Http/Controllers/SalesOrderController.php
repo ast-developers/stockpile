@@ -155,6 +155,7 @@ class SalesOrderController extends Controller
         $salesOrder['ord_date']     = DbDateFormat($request->ord_date);
         $salesOrder['from_stk_loc'] = $request->from_stk_loc;
         $salesOrder['total']        = $request->total;
+        $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['created_at']   = date('Y-m-d H:i:s');
         // d($salesOrder,1);
         $salesOrderId = \DB::table('sales_orders')->insertGetId($salesOrder);
@@ -257,6 +258,7 @@ class SalesOrderController extends Controller
         $salesOrder['from_stk_loc'] = $request->from_stk_loc;
         $salesOrder['comments']     = $request->comments;
         $salesOrder['total']        = $request->total;
+        $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['updated_at']   = date('Y-m-d H:i:s');
         //d($salesOrder,1);
 
