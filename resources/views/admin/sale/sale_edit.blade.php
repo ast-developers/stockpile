@@ -93,7 +93,14 @@
                     @endforeach
                     </select>
               </div>
-            </div>            
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">{{ trans('message.table.delivery_price') }}</label>
+                    <input class="form-control delivery_price" id="delivery_price" type="text" name="delivery_price" value="{{$saleData->delivery_price}}" readonly>
+                </div>
+            </div>
 
             <div class="col-md-3">
               <div class="form-group">
@@ -158,6 +165,9 @@
                     @endforeach
 
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee">{{$saleData->delivery_price}}</strong></td></tr>
+
                   @foreach($taxType as $rate=>$tax_amount)
                   <tr class="tax_rate_{{str_replace('.','_',$rate)}}"><td colspan="6" align="right">{{ trans('message.invoice.plus_tax') }}({{$rate}}%)</td><td colspan="2" class="item-taxs" id="totalTaxs_{{str_replace('.','_',$rate)}}">{{$tax_amount}}</td></tr>
                   @endforeach
@@ -292,10 +302,14 @@
       // Calculate subTotal
       var subTotal = calculateSubTotal();
       $("#subTotal").html(subTotal);
+
+        //Get Delivery Fee
+        var delivery_fee = parseFloat($("#delivery_price").val());
+
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal);
+      var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
     });

@@ -763,6 +763,7 @@ class SalesOrderController extends Controller
         $salesOrderInvoice['ord_date']           = DbDateFormat($request->ord_date);
         $salesOrderInvoice['from_stk_loc']       = $request->from_stk_loc;
         $salesOrderInvoice['total']              = $request->total;
+        $salesOrderInvoice['delivery_price']              = $request->delivery_price;
         $salesOrderInvoice['payment_term']       = $request->payment_term;
         $salesOrderInvoice['created_at']         = date('Y-m-d H:i:s');
 
