@@ -275,7 +275,7 @@
                 </tr>
                @endforeach
                
-                </tfoot>
+                </tbody>
               </table>
              @elseif($searchType=='monthly')
               <table id="salesList" class="table table-bordered table-striped">

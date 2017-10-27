@@ -60,38 +60,46 @@ tr{ height:40px;}
         $total_profit = 0;
         $count = 0;
       ?>
+     <?php $ordIdArray = array();?>
+
       @foreach ($itemList as $item)
       <?php
-     
-      $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
-      if($item->purch_price_amount<=0){
-        $profit_margin = 100;
-      }else{
-      $profit_margin = ($profit*100)/$item->purch_price_amount;
-    }
+         $duplicateResult = salesReportRemoveDuplicates($item->order_reference_id, $ordIdArray);
+         $ordIdArray[] = $item->primary_order_no;
 
-      $qty += $item->qty;
-      $sales_price += $item->sales_price_total;
-      $purchase_price += $item->purch_price_amount;
-      $tax += $item->tax;
-      $total_profit += $profit;
+         //if($duplicateResult){
+     
+              $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
+              if($item->purch_price_amount<=0){
+                $profit_margin = 100;
+              }else{
+              $profit_margin = ($profit*100)/$item->purch_price_amount;
+            }
+
+              $qty += $item->qty;
+              $sales_price += $item->sales_price_total;
+              $purchase_price += $item->purch_price_amount;
+              $tax += $item->tax;
+              $total_profit += $profit;
 
       ?>
 
-<tr style="background-color:#fff; text-align:center; font-size:13px; font-weight:normal;">
-  
-  <td>{{ $item->order_reference }}</td>
-  <td>{{ formatDate($item->ord_date) }}</td>
-  <td>{{ $item->name }}</td>
-  <td>{{ $item->qty }}</td>
-  <td>{{ number_format(($item->sales_price_total-$item->tax),2,'.',',') }}</td>
+        <tr style="background-color:#fff; text-align:center; font-size:13px; font-weight:normal;">
 
-  <td>{{ number_format(($item->purch_price_amount),2,'.',',') }}</td>
-  <td>{{ number_format(($item->tax),2,'.',',') }}</td>
+          <td>{{ ($item->order_reference) ? $item->order_reference :  $item->reference}}</td>
+          <td>{{ formatDate($item->ord_date) }}</td>
+          <td>{{ $item->name }}</td>
+          <td>{{ $item->qty }}</td>
+          <td>{{ number_format(($item->sales_price_total-$item->tax),2,'.',',') }}</td>
 
-  <td>{{ number_format(($profit),2,'.',',') }}</td>
-  <td>{{ number_format(($profit_margin),2,'.',',') }}</td>
- </tr>
+          <td>{{ number_format(($item->purch_price_amount),2,'.',',') }}</td>
+          <td>{{ number_format(($item->tax),2,'.',',') }}</td>
+
+          <td>{{ number_format(($profit),2,'.',',') }}</td>
+          <td>{{ number_format(($profit_margin),2,'.',',') }}</td>
+         </tr>
+
+      <?php //} ?>
   @endforeach 
 
  <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">

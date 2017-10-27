@@ -63,22 +63,29 @@
       $cost_total = 0;
       $profit_total = 0;
       ?>
+        <?php $orderIdsArray = array();?>
+
         @foreach ($itemList as $item)
         
         <?php
-        $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
-        
-        if($item->purch_price_amount == 0){
-          $profit_margin = 100;
-        }else{
-        $profit_margin = ($profit*100)/$item->purch_price_amount;
-        }
+            $duplicateResult = salesReportRemoveDuplicates($item->order_reference_id, $orderIdsArray);
+            $orderIdsArray[] = $item->primary_order_no;
 
-        $qty_total += $item->qty;
-        $sales_total += $item->sales_price_total-$item->tax;
-        $cost_total += $item->purch_price_amount;
-        $tax_total += $item->tax;
-        $profit_total += $profit 
+            //if($duplicateResult){
+                $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
+
+                if($item->purch_price_amount == 0){
+                  $profit_margin = 100;
+                }else{
+                $profit_margin = ($profit*100)/$item->purch_price_amount;
+                }
+
+                $qty_total += $item->qty;
+                $sales_total += $item->sales_price_total-$item->tax;
+                $cost_total += $item->purch_price_amount;
+                $tax_total += $item->tax;
+                $profit_total += $profit;
+            //}
         ?>
         
         @endforeach
@@ -149,36 +156,49 @@
                   $total_profit = 0;
                    
                 ?>
+                <?php $ordIdArray = array();?>
+
                 @foreach ($itemList as $item)
                 <?php
-                $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
-                
-                if($item->purch_price_amount == 0){
-                  $profit_margin = 100;
-                }else{
-                $profit_margin = ($profit*100)/$item->purch_price_amount;
-                }
 
-                $qty += $item->qty;
-                $sales_price += $item->sales_price_total;
-                $purchase_price += $item->purch_price_amount;
-                $tax += $item->tax;
-                $total_profit += $profit 
+                $duplicateResult = salesReportRemoveDuplicates($item->order_reference_id, $ordIdArray);
+                $ordIdArray[] = $item->primary_order_no;
+
+                //if($duplicateResult){
+                    $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
+
+                    if($item->purch_price_amount == 0){
+                      $profit_margin = 100;
+                    }else{
+                    $profit_margin = ($profit*100)/$item->purch_price_amount;
+                    }
+
+                    $qty += $item->qty;
+                    $sales_price += $item->sales_price_total;
+                    $purchase_price += $item->purch_price_amount;
+                    $tax += $item->tax;
+                    $total_profit += $profit
                 ?>
-                <tr>
-                <td class="text-center">{{ formatDate($item->ord_date) }}</td>
-                  <td class="text-center"><a href="{{URL::to('/')}}/order/view-order-details/{{$item->order_reference_id}}">{{ $item->order_reference }}</a></td>
-                  
-                  <td class="text-center"><a href="{{URL::to('/')}}/customer/edit/{{$item->debtor_no}}">{{ $item->name }}</a></td>
-                  <td class="text-center">{{ $item->qty }}</td>
-                  <td class="text-center">{{ number_format(($item->sales_price_total-$item->tax),2,'.',',') }}</td>
-                  <td class="text-center">{{ number_format(($item->purch_price_amount),2,'.',',') }}</td>
-                  <td class="text-center">{{ number_format(($item->tax),2,'.',',') }}</td>
-                  <td class="text-center">{{ number_format(($profit),2,'.',',') }}</td>
-                  <td class="text-center">{{ number_format(($profit_margin),2,'.',',') }}</td>
-                </tr>
+                    <tr>
+                    <td class="text-center">{{ formatDate($item->ord_date) }}</td>
+                        @if($item->order_reference)
+                            <td class="text-center"><a href="{{URL::to('/')}}/order/view-order-details/{{$item->order_reference_id}}">{{ $item->order_reference }}</a></td>
+                        @else
+                            <td class="text-center"><a href="{{URL::to('/')}}/order/view-order-details/{{$item->primary_order_no}}">{{ $item->reference }}</a></td>
+                        @endif
+
+                      <td class="text-center"><a href="{{URL::to('/')}}/customer/edit/{{$item->debtor_no}}">{{ $item->name }}</a></td>
+                      <td class="text-center">{{ $item->qty }}</td>
+                      <td class="text-center">{{ number_format(($item->sales_price_total-$item->tax),2,'.',',') }}</td>
+                      <td class="text-center">{{ number_format(($item->purch_price_amount),2,'.',',') }}</td>
+                      <td class="text-center">{{ number_format(($item->tax),2,'.',',') }}</td>
+                      <td class="text-center">{{ number_format(($profit),2,'.',',') }}</td>
+                      <td class="text-center">{{ number_format(($profit_margin),2,'.',',') }}</td>
+                    </tr>
+
+                <?php //} ?>
                @endforeach
-                </tfoot>
+                </tbody>
               </table>
             </div>
             <!-- /.box-body -->
