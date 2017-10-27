@@ -137,6 +137,7 @@
                         @endforeach
                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.total_qty') }}</td><td align="right" colspan="2">{{$units}}</td></tr>
                       <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.sub_total') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($subTotal,2,'.',',') }}</td></tr>
+                       <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.delivery_price') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($saleDataInvoice->delivery_price,2,'.',',') }}</td></tr>
                       @foreach($taxType as $rate=>$tax_amount)
                       <?php
                           $taxAmount += $tax_amount;
@@ -145,13 +146,13 @@
                       <tr><td colspan="5" align="right">Plus Tax({{$rate}}%)</td><td colspan="2" class="text-right">{{ Session::get('currency_symbol').number_format($tax_amount,2,'.',',') }}</td></tr>
                       @endif
                       @endforeach
-                      <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td colspan="2" class="text-right"><strong>{{ Session::get('currency_symbol').number_format($subTotal+$taxAmount,2,'.',',') }}</strong></td></tr>
+                      <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td colspan="2" class="text-right"><strong>{{ Session::get('currency_symbol').number_format($subTotal+$taxAmount+($saleDataInvoice->delivery_price),2,'.',',') }}</strong></td></tr>
                       <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.invoice.paid') }}</td><td colspan="2" class="text-right"> {{ Session::get('currency_symbol').number_format($saleDataInvoice->paid_amount,2,'.',',') }}</td></tr>
                       <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.invoice.due') }}</strong></td><td colspan="2" class="text-right"><strong>
                         @if(($subTotal+$taxAmount-$saleDataInvoice->paid_amount)<0)
-                        -{{ Session::get('currency_symbol').number_format(abs($subTotal+$taxAmount-$saleDataInvoice->paid_amount),2,'.',',') }}
+                        -{{ Session::get('currency_symbol').number_format(abs($subTotal+$taxAmount+$saleDataInvoice->delivery_price-$saleDataInvoice->paid_amount),2,'.',',') }}
                         @else
-                        {{ Session::get('currency_symbol').number_format(abs($subTotal+$taxAmount-$saleDataInvoice->paid_amount),2,'.',',') }}
+                        {{ Session::get('currency_symbol').number_format(abs($subTotal+$taxAmount+$saleDataInvoice->delivery_price-$saleDataInvoice->paid_amount),2,'.',',') }}
                         @endif
                       </strong></td></tr>
                       @endif

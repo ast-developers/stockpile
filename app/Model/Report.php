@@ -145,7 +145,7 @@ class Report extends Model
   	$from = DbDateFormat($from);
   	$to = DbDateFormat($to);
 
-  	$whereConditions = '';
+  	$whereConditions = 'WHERE 1=1 AND sales_orders.reference NOT LIKE "INV-%"';
   	if($customer != 'all'){
   		$whereConditions .= " AND sales_orders.debtor_no = '$customer'";
   	}
@@ -160,7 +160,7 @@ class Report extends Model
   	if( $type=='daily' ){
   		 // Daily End Here
 $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) as total_order,SUM(infos.qty) as qty,SUM(infos.purchase) as purchase,SUM(infos.sale) as sale,infos.stock_id FROM sales_orders
-				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod WHERE `trans_type`=202)sods
+				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod )sods
 				LEFT JOIN item_tax_types
 				ON item_tax_types.id = sods.tax_type_id)sales
 
@@ -177,7 +177,6 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				ON purchase.stock_id = sales.stock_id)sale_purch_detail
 				GROUP BY sale_purch_detail.order_no)infos
 				ON infos.order_no = sales_orders.order_no
-				WHERE sales_orders.trans_type = 202 
 				$whereConditions
 				GROUP BY sales_orders.ord_date 
 				ORDER BY sales_orders.ord_date DESC
@@ -186,7 +185,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
   	}else if( $type=='monthly' ){
 
    			$data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) as total_order,SUM(infos.qty) as qty,SUM(infos.purchase) as purchase,SUM(infos.sale) as sale,infos.stock_id FROM sales_orders
-				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod WHERE `trans_type`=202)sods
+				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod)sods
 				LEFT JOIN item_tax_types
 				ON item_tax_types.id = sods.tax_type_id)sales
 
@@ -203,7 +202,6 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				ON purchase.stock_id = sales.stock_id)sale_purch_detail
 				GROUP BY sale_purch_detail.order_no)infos
 				ON infos.order_no = sales_orders.order_no
-				WHERE sales_orders.trans_type = 202
 
 				$whereConditions
 
@@ -216,7 +214,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
   		//d($type,1);
   		if( $year=='all' ){
    			$data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) as total_order,SUM(infos.qty) as qty,SUM(infos.purchase) as purchase,SUM(infos.sale) as sale,infos.stock_id FROM sales_orders
-				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod WHERE `trans_type`=202)sods
+				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod)sods
 				LEFT JOIN item_tax_types
 				ON item_tax_types.id = sods.tax_type_id)sales
 
@@ -233,7 +231,6 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				ON purchase.stock_id = sales.stock_id)sale_purch_detail
 				GROUP BY sale_purch_detail.order_no)infos
 				ON infos.order_no = sales_orders.order_no
-				WHERE sales_orders.trans_type = 202
 				$whereConditions
 				GROUP BY YEAR(sales_orders.ord_date)
 				ORDER BY sales_orders.ord_date DESC
@@ -241,7 +238,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
   		}elseif ($year !='all') {
   			if( $month=='all' ){
    			$data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) as total_order,SUM(infos.qty) as qty,SUM(infos.purchase) as purchase,SUM(infos.sale) as sale,infos.stock_id FROM sales_orders
-				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod WHERE `trans_type`=202)sods
+				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod)sods
 				LEFT JOIN item_tax_types
 				ON item_tax_types.id = sods.tax_type_id)sales
 
@@ -258,7 +255,6 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				ON purchase.stock_id = sales.stock_id)sale_purch_detail
 				GROUP BY sale_purch_detail.order_no)infos
 				ON infos.order_no = sales_orders.order_no
-				WHERE sales_orders.trans_type = 202
 				$whereConditions
                 AND YEAR(sales_orders.ord_date) = '$year'
                 GROUP BY MONTH(sales_orders.ord_date)
@@ -267,7 +263,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
   		}else if( $month !='all'){
 
    			$data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) as total_order,SUM(infos.qty) as qty,SUM(infos.purchase) as purchase,SUM(infos.sale) as sale,infos.stock_id FROM sales_orders
-				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod WHERE `trans_type`=202)sods
+				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod)sods
 				LEFT JOIN item_tax_types
 				ON item_tax_types.id = sods.tax_type_id)sales
 
@@ -284,7 +280,6 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				ON purchase.stock_id = sales.stock_id)sale_purch_detail
 				GROUP BY sale_purch_detail.order_no)infos
 				ON infos.order_no = sales_orders.order_no
-				WHERE sales_orders.trans_type = 202
 				$whereConditions
                 AND YEAR(sales_orders.ord_date) = '$year'
                 AND MONTH(sales_orders.ord_date) = '$month'
@@ -296,7 +291,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 
   	}elseif($type=='custom'){
    			$data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) as total_order,SUM(infos.qty) as qty,SUM(infos.purchase) as purchase,SUM(infos.sale) as sale,infos.stock_id FROM sales_orders
-				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod WHERE `trans_type`=202)sods
+				LEFT JOIN(SELECT sale_purch_detail.order_no,sale_purch_detail.stock_id, count(sale_purch_detail.order_no)as total_order,SUM(sale_purch_detail.quantity)as qty,SUM(sale_purch_detail.sale) as sale,SUM(sale_purch_detail.purchase)as purchase FROM(SELECT sales.*,(purchase.purchase_rate*sales.quantity)as purchase FROM(SELECT sods.order_no,sods.stock_id,sods.quantity,(sods.discount_price-(sods.discount_price*item_tax_types.tax_rate/100)) as sale FROM(SELECT sod.`id`, sod.`order_no`, sod.`stock_id`, sod.`unit_price`*sod.`quantity`-(sod.`unit_price`*sod.`quantity`*`discount_percent`)/100 as discount_price ,sod.`discount_percent`,sod.`quantity`,sod.`unit_price`,sod.`tax_type_id` FROM `sales_order_details` as sod)sods
 				LEFT JOIN item_tax_types
 				ON item_tax_types.id = sods.tax_type_id)sales
 
@@ -313,7 +308,6 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				ON purchase.stock_id = sales.stock_id)sale_purch_detail
 				GROUP BY sale_purch_detail.order_no)infos
 				ON infos.order_no = sales_orders.order_no
-				WHERE sales_orders.trans_type = 202
 				$whereConditions
                 AND sales_orders.ord_date BETWEEN '$from' AND '$to'
                 GROUP BY sales_orders.ord_date
@@ -325,7 +319,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
     }
 
     public function getSalesReportByDate($date){
-           $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.debtor_no,final_tbl.order_reference_id, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.debtor_no,so.order_reference_id,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details` WHERE `trans_type`=202)sod
+		$data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.reference,final_tbl.debtor_no,final_tbl.order_reference_id,final_tbl.order_no AS primary_order_no, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.reference,so.debtor_no,so.order_reference_id,so.order_no AS primary_order_no,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details`)sod
 				LEFT JOIN item_tax_types as tax
 				ON tax.id = sod.tax_id
 
@@ -339,13 +333,14 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 
 				LEFT JOIN debtors_master as dm
 				ON dm.debtor_no = info_tbl.debtor_no
+				WHERE info_tbl.reference NOT LIKE 'INV-%'
 				"));
 		return $data;
     }
 
     public function getSalesHistoryReport($from,$to,$user){
     	if($from == NULL || $to == NULL || $user == NULL){
-    	        $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.debtor_no,final_tbl.order_no,final_tbl.order_reference_id, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.debtor_no,so.order_reference_id,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details` WHERE `trans_type`=202)sod
+    	        $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.reference,final_tbl.debtor_no,final_tbl.order_no,final_tbl.order_reference_id,final_tbl.order_no AS primary_order_no, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.reference,so.debtor_no,so.order_reference_id,so.order_no AS primary_order_no,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details`)sod
 				LEFT JOIN item_tax_types as tax
 				ON tax.id = sod.tax_id
 
@@ -358,11 +353,12 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 
 				LEFT JOIN debtors_master as dm
 				ON dm.debtor_no = info_tbl.debtor_no
+				WHERE info_tbl.reference NOT LIKE 'INV-%'
 				ORDER BY info_tbl.ord_date DESC
 
 				"));
 			}else if($user == 'all' && $from != NULL && $to != NULL){
-    	        $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.debtor_no,final_tbl.order_no,final_tbl.order_reference_id, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.debtor_no,so.order_reference_id,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details` WHERE `trans_type`=202)sod
+    	        $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.reference,final_tbl.debtor_no,final_tbl.order_no,final_tbl.order_reference_id,final_tbl.order_no AS primary_order_no, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.reference,so.debtor_no,so.order_reference_id,so.order_no AS primary_order_no,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details`)sod
 				LEFT JOIN item_tax_types as tax
 				ON tax.id = sod.tax_id
 
@@ -376,12 +372,12 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				LEFT JOIN debtors_master as dm
 				ON dm.debtor_no = info_tbl.debtor_no
 
-				WHERE info_tbl.ord_date BETWEEN '$from' AND '$to'
+				WHERE info_tbl.ord_date BETWEEN '$from' AND '$to' AND info_tbl.reference NOT LIKE 'INV-%'
 				ORDER BY info_tbl.ord_date DESC
 
 				"));
 			}else if($user != 'all' && $from != NULL && $to != NULL){
-    	        $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.debtor_no,final_tbl.order_no,final_tbl.order_reference_id, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.debtor_no,so.order_reference_id,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details` WHERE `trans_type`=202)sod
+    	        $data = DB::select(DB::raw("SELECT info_tbl.*,dm.name FROM(SELECT final_tbl.ord_date,final_tbl.order_reference,final_tbl.reference,final_tbl.debtor_no,final_tbl.order_no,final_tbl.order_reference_id,final_tbl.order_no AS primary_order_no, SUM(final_tbl.quantity) as qty,SUM(final_tbl.sales_price) as sales_price_total,SUM(final_tbl.tax_amount)as tax,SUM(final_tbl.purchase_price) as purch_price_amount FROM(SELECT sod.*,so.ord_date,so.order_reference,so.reference,so.debtor_no,so.order_reference_id,so.order_no AS primary_order_no,(sod.quantity*sod.unit_price-sod.quantity*sod.unit_price*sod.discount_percent/100) as sales_price,(sod.quantity*sod.unit_price*tax.tax_rate/100) as tax_amount,purchase_table.rate as purchase_unit_price,(sod.quantity*purchase_table.rate) as purchase_price FROM(SELECT sales_order_details.order_no,sales_order_details.stock_id,sales_order_details.`quantity`,sales_order_details.`unit_price`,sales_order_details.`discount_percent`,sales_order_details.`tax_type_id` as tax_id FROM `sales_order_details` WHERE `trans_type`=202)sod
 				LEFT JOIN item_tax_types as tax
 				ON tax.id = sod.tax_id
 
@@ -395,7 +391,7 @@ $data = DB::select(DB::raw("SELECT sales_orders.ord_date,count(infos.order_no) a
 				LEFT JOIN debtors_master as dm
 				ON dm.debtor_no = info_tbl.debtor_no
 
-				WHERE info_tbl.ord_date BETWEEN '$from' AND '$to'
+				WHERE info_tbl.ord_date BETWEEN '$from' AND '$to' AND info_tbl.reference NOT LIKE 'INV-%'
 				AND info_tbl.debtor_no = '$user'
 				ORDER BY info_tbl.ord_date DESC
 

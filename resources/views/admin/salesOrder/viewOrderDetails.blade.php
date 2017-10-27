@@ -115,6 +115,7 @@
                           @endforeach
                           <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.total_qty') }}</td><td align="right" colspan="2">{{$units}}</td></tr>
                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.sub_total') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($subTotal,2,'.',',') }}</td></tr>
+                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.delivery_price') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($saleData->delivery_price,2,'.',',') }}</td></tr>
                         @foreach($taxType as $rate=>$tax_amount)
                         @if($rate != 0)
                         <tr><td colspan="5" align="right">Plus Tax({{$rate}}%)</td><td colspan="2" class="text-right">{{ Session::get('currency_symbol').number_format($tax_amount,2,'.',',') }}</td></tr>

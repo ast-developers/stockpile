@@ -117,11 +117,13 @@ tr{ height:40px;}
       <td colspan="6" style="border-bottom:none">
          Total Quantity<br />
        <strong>SubTotal</strong><br/>
-        </td>   
+       <strong>Delivery Fee</strong><br/>
+        </td>
 
       <td style="text-align:right; padding-right:10px;border-bottom:none">
         {{$sum}}<br />
        {{Session::get('currency_symbol').number_format(($subTotalAmount),2,'.',',')}}<br/>
+       {{Session::get('currency_symbol').number_format(($saleDataInvoice->delivery_price),2,'.',',')}}<br/>
       </td>
     </tr>
 
@@ -144,7 +146,7 @@ tr{ height:40px;}
 
     <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">
       <td colspan="6" style="text-align:right;border-bottom:none"><strong>Grand Total</strong></td>
-      <td style="text-align:right; padding-right:10px;border-bottom:none"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount),2,'.',',')}}</strong></td>
+      <td style="text-align:right; padding-right:10px;border-bottom:none"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount+$saleDataInvoice->delivery_price),2,'.',',')}}</strong></td>
     </tr>
     <tr style="text-align:right; font-size:13px; font-weight:normal;">
       <td colspan="6" style="text-align:right;">Paid Amount</td>
@@ -153,10 +155,10 @@ tr{ height:40px;}
     <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">
       <td colspan="6" style="text-align:right;"><strong>Due Amount</strong></td>
       <td style="text-align:right; padding-right:10px"><strong>
-        @if(($subTotalAmount+$taxAmount-$saleDataInvoice->paid_amount)< 0)
-        -{{Session::get('currency_symbol').number_format(abs($subTotalAmount+$taxAmount-$saleDataInvoice->paid_amount),2,'.',',')}}
+        @if(($subTotalAmount+$taxAmount+$saleDataInvoice->delivery_price-$saleDataInvoice->paid_amount)< 0)
+        -{{Session::get('currency_symbol').number_format(abs($subTotalAmount+$taxAmount+$saleDataInvoice->delivery_price-$saleDataInvoice->paid_amount),2,'.',',')}}
        @else
-       {{Session::get('currency_symbol').number_format(abs($subTotalAmount+$taxAmount-$saleDataInvoice->paid_amount),2,'.',',')}}
+       {{Session::get('currency_symbol').number_format(abs($subTotalAmount+$taxAmount+$saleDataInvoice->delivery_price-$saleDataInvoice->paid_amount),2,'.',',')}}
        @endif
        </strong></td>
     </tr>

@@ -376,3 +376,14 @@ function getTotalPaidAmountByOrder($order_reference,$order_no){
     //d($dueAmount,1);
     return $dueAmount;
 }
+
+function salesReportRemoveDuplicates($ordId, $ordIdArray){
+
+    if(in_array($ordId, $ordIdArray)){
+        return false;
+    }
+    else{
+        return true;
+    }
+
+}

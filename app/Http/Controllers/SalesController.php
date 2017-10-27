@@ -295,6 +295,7 @@ class SalesController extends Controller
         $salesOrder['from_stk_loc'] = $request->from_stk_loc;
         $salesOrder['comments'] = $request->comments;
         $salesOrder['total'] = $request->total;
+        $salesOrder['delivery_price'] = $request->delivery_price;
         $salesOrder['payment_term'] = $request->payment_term;
         $salesOrder['updated_at'] = date('Y-m-d H:i:s');
        // d($salesOrder);
