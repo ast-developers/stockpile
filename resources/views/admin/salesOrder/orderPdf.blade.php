@@ -96,17 +96,24 @@ tr{ height:40px;}
   <?php
     $sum = $item['quantity']+$sum;
   ?>
-  @endforeach   
+  @endforeach
+
+       <?php
+       $subTotalDiscountPrice = ($subTotalAmount*$saleData->discount_percent)/100;
+       $subTotalAmount = number_format(($subTotalAmount-$subTotalDiscountPrice), 2, '.', ',');
+       ?>
 
     <tr style="background-color:#fff; text-align:right; font-size:13px; font-weight:normal; height:100px;">
       <td colspan="6" style="border-bottom:none">
          Total Quantity<br />
+          <strong>Discount(%)</strong><br/>
        <strong>SubTotal</strong><br/>
         <strong>Delivery Fee</strong><br/>
         </td>   
 
       <td style="text-align:right; padding-right:10px;border-bottom:none">
         {{$sum}}<br />
+          {{number_format(($saleData->discount_percent),2,'.',',')}}<br/>
        {{Session::get('currency_symbol').number_format(($subTotalAmount),2,'.',',')}}<br/>
           {{Session::get('currency_symbol').number_format(($saleData->delivery_price),2,'.',',')}}<br/>
       </td>
