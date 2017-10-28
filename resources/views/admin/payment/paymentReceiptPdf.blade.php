@@ -5,7 +5,7 @@
 <title>Payment | Information</title>
 </head>
 <style>
- body{ font-family:Arial, Helvetica, sans-serif; color:#121212; line-height:22px;}
+ body{ font-family:DejaVu Sans, sans-serif; color:#121212; line-height:16px;}
  table, tr, td{
     border-bottom: 1px solid #d1d1d1;
     padding: 6px 0px;
