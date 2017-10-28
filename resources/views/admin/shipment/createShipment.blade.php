@@ -123,6 +123,7 @@
                         @endif
                     @endforeach
 
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><strong id="perOrderDiscount">{{$orderInfo->discount_percent}}</strong></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
                   <?php
                  
@@ -136,6 +137,12 @@
                   ?>
                   @endif
                   @endforeach
+
+                    <?php
+                    $subTotalDiscountPrice = ($subTotalAmount*$orderInfo->discount_percent)/100;
+                    $subTotalAmount = ($subTotalAmount-$subTotalDiscountPrice);
+                    ?>
+
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td align="left" colspan="2"><input type='text' class="form-control" id = "grandTotal" value="{{($subTotalAmount+$taxAmount)}}" readonly></td></tr>
                   @endif
                   </tbody>
@@ -164,6 +171,11 @@
     </section>
 @endsection
 @section('js')
+
+    <script type="text/javascript">
+        var perOrderPercentage = '<?php echo $orderInfo->discount_percent; ?>';
+    </script>
+
     <script type="text/javascript">
 
     $(function () {
@@ -218,6 +230,8 @@
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();

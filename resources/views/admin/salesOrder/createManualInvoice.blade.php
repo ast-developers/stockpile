@@ -176,6 +176,7 @@
                     <?php
                       $tax = 0;
                     ?>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><strong id="perOrderDiscount">{{$saleData->discount_percent}}</strong></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee">{{$saleData->delivery_price}}</strong></td></tr>
                   @foreach($taxType as $rate=>$tax_amount)
@@ -184,6 +185,11 @@
                       $tax += $tax_amount;
                     ?>
                   @endforeach
+
+                  <?php
+                  $subTotalDiscountPrice = ($totalPrice*$saleData->discount_percent)/100;
+                  $totalPrice = ($totalPrice-$subTotalDiscountPrice);
+                  ?>
 
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td align="left" colspan="2"><input type='text' name="total" class="form-control" id = "grandTotal" value="{{$totalPrice+$tax+$saleData->delivery_price}}" readonly></td></tr>
                   @endif
@@ -214,6 +220,10 @@
     </section>
 @endsection
 @section('js')
+    <script type="text/javascript">
+        var perOrderPercentage = '<?php echo $saleData->discount_percent; ?>';
+    </script>
+
     <script type="text/javascript">
 
       var refNo ='INV-'+$("#reference_no").val();
@@ -319,7 +329,9 @@
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
-      $("#subTotal").html(subTotal);
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
+        $("#subTotal").html(subTotal);
 
         //Get Delivery Fee
         var delivery_fee = parseFloat($("#delivery_price").val());
@@ -437,6 +449,8 @@
                $("tr.tax_rate_"+itemTaxRow).remove();
 
                 var subTotal = calculateSubTotal();
+               var perOrderDiscount = parseFloat(perOrderPercentage);
+               subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
                 $("#subTotal").html(subTotal);
 
                //Fetch delivery fee
@@ -450,7 +464,12 @@
             }
             
             var subTotal = calculateSubTotal();
+          var perOrderDiscount = parseFloat(perOrderPercentage);
+          subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
             $("#subTotal").html(subTotal);
+
+          //Fetch delivery fee
+          var deliveryFee = parseFloat($("#delivery_price").val());
             
             var newTaxInfo =createTaxId(itemTaxRow);
             var priceByTaxTpye = calculateTotalByTaxType(itemTaxRow); 
@@ -459,7 +478,7 @@
            
             var taxTotal = calculateTaxTotal();
             // Calculate GrandTotal
-            var grandTotal = (subTotal + taxTotal);
+            var grandTotal = (subTotal + taxTotal + deliveryFee);
             $("#grandTotal").val(grandTotal);           
           var count = $('#purchaseInvoice tr.insufficient').length;
           
@@ -476,6 +495,8 @@
 
     $(document).ready(function(){
         var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
       });
 
