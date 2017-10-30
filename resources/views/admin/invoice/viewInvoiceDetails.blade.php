@@ -130,13 +130,20 @@
                                 $subTotal += $newPrice;
                                 $units += $result['quantity'];
                                 $itemsInformation .= '<div>'.$result['quantity'].'x'.' '.$result['description'].'</div>';
-                              ?>
+                                ?>
                               <td align="right">{{number_format($newPrice,2,'.',',') }}</td>
                             </tr>
                             @endif
                         @endforeach
+
+                       <?php
+                        $subTotalDiscount = ($subTotal*$saleDataInvoice->discount_percent)/100;
+                        $subTotal = $subTotal-$subTotalDiscount;
+                       ?>
+
                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.total_qty') }}</td><td align="right" colspan="2">{{$units}}</td></tr>
-                      <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.sub_total') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($subTotal,2,'.',',') }}</td></tr>
+                       <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.discount') }}(%)</td><td align="right" colspan="2">{{ $saleDataInvoice->discount_percent }}</td></tr>
+                       <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.sub_total') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($subTotal,2,'.',',') }}</td></tr>
                        <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.delivery_price') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').number_format($saleDataInvoice->delivery_price,2,'.',',') }}</td></tr>
                       @foreach($taxType as $rate=>$tax_amount)
                       <?php

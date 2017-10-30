@@ -122,7 +122,15 @@
                             </tr>
                             @endif
                             @endforeach
+
+                            <?php
+                                $subtotalDiscount = ($subTotalAmount*$orderInfo->discount_percent)/100;
+                                $subTotalAmount = $subTotalAmount-$subtotalDiscount;
+                            ?>
                             <tr><td colspan="6" align="right">{{ trans('message.table.total_quantity') }}</td><td align="right">{{$qtyTotal}}</td></tr>
+
+                            <tr><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="right" colspan="2"><strong id="perOrderDiscount">{{$orderInfo->discount_percent}}</strong></td></tr>
+
                             <tr><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="right"><strong>{{ Session::get('currency_symbol').number_format($subTotalAmount,2,'.',',') }}</strong></td></tr>
                             
                             @foreach($taxInfo as $rate=>$tax_amount)

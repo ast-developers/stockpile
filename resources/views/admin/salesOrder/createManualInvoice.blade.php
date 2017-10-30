@@ -111,6 +111,24 @@
             </div>
         </div>
 
+
+          <div class="row">
+
+              <div class="col-md-3">
+                  <div class="form-group">
+                      <label for="exampleInputEmail1">{{ trans('message.table.discount_type') }}</label>
+                      <select class="form-control select2" name="discount_type" id="discount_type" disabled>
+                          <option value="1" {{($saleData->discount_type==1) ? 'selected=selected' : ''}}>Per Item</option>
+                          <option value="2" {{($saleData->discount_type==2) ? 'selected=selected' : ''}}>Per Order</option>
+                      </select>
+                      <input type="hidden" name="discount_type" value="{{$saleData->discount_type}}" />
+                  </div>
+              </div>
+
+          </div>
+
+              <br>
+
         <div class="row">
           <div class="col-md-12">
             <div class="text-center" id="quantityMessage" style="color:red; font-weight:bold">
@@ -176,7 +194,7 @@
                     <?php
                       $tax = 0;
                     ?>
-                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><strong id="perOrderDiscount">{{$saleData->discount_percent}}</strong></td></tr>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="{{$saleData->discount_percent}}" max="100" min="0" readonly></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee">{{$saleData->delivery_price}}</strong></td></tr>
                   @foreach($taxType as $rate=>$tax_amount)

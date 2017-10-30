@@ -117,6 +117,24 @@
               <span id="errMsg" class="text-danger"></span>
             </div>
         </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">{{ trans('message.table.discount_type') }}</label>
+                        <select class="form-control select2" name="discount_type" id="discount_type" disabled>
+                            <option value="1" {{($saleData->discount_type==1) ? 'selected=selected' : ''}}>Per Item</option>
+                            <option value="2" {{($saleData->discount_type==2) ? 'selected=selected' : ''}}>Per Order</option>
+                        </select>
+                        <input type="hidden" name="discount_type" value="{{$saleData->discount_type}}" />
+                    </div>
+                </div>
+
+            </div>
+
+            <br>
+
         <div class="row">
           <div class="col-md-12">
             <div class="text-center" id="quantityMessage" style="color:red; font-weight:bold">
@@ -163,6 +181,8 @@
 
 
                     @endforeach
+
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="{{$saleData->discount_percent}}" max="100" min="0" readonly></td></tr>
 
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
 
@@ -301,6 +321,8 @@
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
 
         //Get Delivery Fee
@@ -379,6 +401,14 @@
         return result;
       }
 
+    //Calculate disccount for per order
+    function calculatePerOrderDiscount(total, discount){
+        var finalDiscount = (discount * total)/100;
+        var totalAfterDiscount = total - finalDiscount;
+
+        return totalAfterDiscount;
+    }
+
 // Item form validation
     $('#salesForm').validate({
         rules: {
@@ -405,6 +435,8 @@
 
     $(document).ready(function(){
         var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
       });
 
