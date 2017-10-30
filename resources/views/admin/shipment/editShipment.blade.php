@@ -92,6 +92,13 @@
                                   <td><input amount-id="{{$result->item_id}}" class="form-control text-center amount tax_item_price_{{$result->tax_rate}}" id="amount_{{$result->item_id}}" value="{{$discountPriceAmount}}" data-tax-rate="{{$result->tax_rate}}" readonly type="text"></td>
                                 </tr>
                         @endforeach
+
+                      <?php
+                        $subTotalDiscountPrice = ($subTotalAmount*$orderInfo->discount_percent)/100;
+                        $subTotalAmount = ($subTotalAmount-$subTotalDiscountPrice);
+                      ?>
+
+                      <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="center" colspan="2"><strong id="perOrderDiscount">{{$orderInfo->discount_percent}}</strong></td></tr>
                       <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="center" colspan="2"><strong id="subTotal"></strong></td></tr>
                         @foreach($taxInfo as $rate=>$tax_amount)
                         <tr class="tax_rate_{{str_replace('.','_',$rate)}}">
@@ -124,6 +131,11 @@
     </section>
 @endsection
 @section('js')
+
+    <script type="text/javascript">
+        var perOrderPercentage = '<?php echo $orderInfo->discount_percent; ?>';
+    </script>
+
     <script type="text/javascript">
     var token = $("#token").val();
     var shipmentId= $("#shipment_id").val();
@@ -172,6 +184,8 @@
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
@@ -246,6 +260,8 @@
 
     $(document).ready(function(){
         var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
       });
     </script>

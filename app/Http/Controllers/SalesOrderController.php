@@ -156,6 +156,8 @@ class SalesOrderController extends Controller
         $salesOrder['from_stk_loc'] = $request->from_stk_loc;
         $salesOrder['total']        = $request->total;
         $salesOrder['delivery_price']        = $request->delivery_price;
+        $salesOrder['discount_type']        = $request->discount_type;
+        $salesOrder['discount_percent']        = $request->perOrderDiscount;
         $salesOrder['created_at']   = date('Y-m-d H:i:s');
         // d($salesOrder,1);
         $salesOrderId = \DB::table('sales_orders')->insertGetId($salesOrder);
@@ -259,6 +261,8 @@ class SalesOrderController extends Controller
         $salesOrder['comments']     = $request->comments;
         $salesOrder['total']        = $request->total;
         $salesOrder['delivery_price']        = $request->delivery_price;
+        $salesOrder['discount_type']        = $request->discount_type;
+        $salesOrder['discount_percent']        = $request->perOrderDiscount;
         $salesOrder['updated_at']   = date('Y-m-d H:i:s');
         //d($salesOrder,1);
 
@@ -764,6 +768,8 @@ class SalesOrderController extends Controller
         $salesOrderInvoice['from_stk_loc']       = $request->from_stk_loc;
         $salesOrderInvoice['total']              = $request->total;
         $salesOrderInvoice['delivery_price']              = $request->delivery_price;
+        $salesOrderInvoice['discount_type']              = $request->discount_type;
+        $salesOrderInvoice['discount_percent']              = $request->perOrderDiscount;
         $salesOrderInvoice['payment_term']       = $request->payment_term;
         $salesOrderInvoice['created_at']         = date('Y-m-d H:i:s');
 
@@ -876,6 +882,9 @@ class SalesOrderController extends Controller
         $salesOrderInvoice['ord_date']           = $orderInfo->ord_date;
         $salesOrderInvoice['from_stk_loc']       = $orderInfo->from_stk_loc;
         $salesOrderInvoice['total']              = $total;
+        $salesOrderInvoice['delivery_price']              = $orderInfo->delivery_price;
+        $salesOrderInvoice['discount_type']              = $orderInfo->discount_type;
+        $salesOrderInvoice['discount_percent']              = $orderInfo->discount_percent;
         $salesOrderInvoice['payment_term']       = $payment_term->id;
         $salesOrderInvoice['created_at']         = date('Y-m-d H:i:s');
 

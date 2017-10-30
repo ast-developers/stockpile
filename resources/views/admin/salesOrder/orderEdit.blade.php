@@ -134,6 +134,23 @@
               <span id="errMsg" class="text-danger"></span>
             </div>
         </div>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">{{ trans('message.table.discount_type') }}</label>
+                    <select class="form-control select2" name="discount_type" id="discount_type">
+                        <option value="1" {{($saleData->discount_type==1) ? 'selected=selected' : ''}}>Per Item</option>
+                        <option value="2" {{($saleData->discount_type==2) ? 'selected=selected' : ''}}>Per Order</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <br>
+
         <div class="row">
             <div class="col-md-6">
               <div class="form-group">
@@ -202,7 +219,7 @@
                             </select>
                           </td>
                           <td class="text-center taxAmount">{{$tax}}</td>
-                          <td class="text-center"><input class="form-control text-center discount" name="discount[]" data-input-id="{{$result->item_id}}" id="discount_id_{{$result->item_id}}" max="100" min="0" type="text" value="{{$result->discount_percent}}"></td>
+                          <td class="text-center"><input class="form-control text-center discount" name="discount[]" data-input-id="{{$result->item_id}}" id="discount_id_{{$result->item_id}}" max="100" min="0" type="text" value="{{$result->discount_percent}}" {{($saleData->discount_type==2) ? 'readonly' : ''}}></td>
 
                           <td><input amount-id="{{$result->item_id}}" class="form-control text-center amount" id="amount_{{$result->item_id}}" value="{{$newPrice}}" name="item_price[]" readonly type="text"></td>
                           <td class="text-center"><button id="{{$result->item_id}}" class="btn btn-xs btn-danger delete_item {{$deleteBtn}}"><i class="glyphicon glyphicon-trash"></i></button></td>
@@ -211,6 +228,7 @@
                     $stack[] = $result->item_id;
                   ?>
                     @endforeach
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="{{$saleData->discount_percent}}" max="100" min="0" {{($saleData->discount_type==1) ? 'readonly' : ''}}></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
                     <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee">{{$saleData->delivery_price}}</strong></td></tr>
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.invoice.totalTax') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="taxTotal">{{$taxTotal}}</strong></td></tr>
@@ -382,7 +400,7 @@ $(function() {
                           '<td class="text-center"><input min="0"  type="text" class="form-control text-center unitprice" name="unit_price_new[]" data-id = "'+e.id+'" id="rate_id_'+e.id+'" value="'+ e.price +'"></td>'+
                           '<td class="text-center">'+ taxOptionList +'</td>'+
                           '<td class="text-center taxAmount">'+ taxAmount +'</td>'+
-                          '<td class="text-center"><input type="text" class="form-control text-center discount" name="discount_new[]" data-input-id="'+e.id+'" id="discount_id_'+e.id+'" max="100" min="0"></td>'+
+                          '<td class="text-center"><input type="text" class="form-control text-center discount" name="discount_new[]" data-input-id="'+e.id+'" id="discount_id_'+e.id+'" max="100" min="0" value="0"></td>'+
                           '<td><input class="form-control text-center amount" type="text" amount-id = "'+e.id+'" id="amount_'+e.id+'" value="'+e.price+'" name="item_price_new[]" readonly></td>'+
                           '<td class="text-center"><button id="'+e.id+'" class="btn btn-xs btn-danger delete_item"><i class="glyphicon glyphicon-trash"></i></button></td>'+
                           '</tr>';
@@ -396,6 +414,8 @@ $(function() {
 
                 // Calculate subtotal
                 var subTotal = calculateSubTotal();
+                var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+                subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
                 $("#subTotal").html(subTotal);
 
                   //Get Delivery Fee
@@ -443,6 +463,8 @@ $(function() {
 
                 // Calculate subTotal
                 var subTotal = calculateSubTotal();
+                var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+                subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
                 $("#subTotal").html(subTotal);
 
                   //Get Delivery Fee
@@ -463,6 +485,10 @@ $(function() {
               
               $(this).val('');
               $('#val_item').html('');
+
+              //To check what discount type option is selected
+              $("#discount_type").change();
+
               return false;
           }
         },
@@ -553,6 +579,8 @@ $(function() {
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
 
         //Get Delivery Fee
@@ -593,6 +621,8 @@ $(function() {
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
 
         //Get Delivery Fee
@@ -637,6 +667,8 @@ $(function() {
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
         //Fetch delivery fee
         var deliveryFee = parseFloat($("#delivery_price").val());
@@ -660,6 +692,8 @@ $(function() {
 
         // Fetch subTotal
         var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
 
         //Set the value in delivery html
         $("#deliveryFee").html(deliveryFee);
@@ -684,6 +718,8 @@ $(function() {
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
         //Fetch delivery fee
         var deliveryFee = parseFloat($("#delivery_price").val());
@@ -712,6 +748,8 @@ $(function() {
            $("#rowid"+v+" .taxAmount").text(taxByRow);
             
             var subTotal = calculateSubTotal();
+            var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+            subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
             $("#subTotal").html(subTotal);
 
           //Fetch delivery fee
@@ -724,6 +762,44 @@ $(function() {
             $("#grandTotal").val(grandTotal);           
 
         });
+
+    });
+
+
+    //Discount type drop down on change
+    $(document).on('change', '#discount_type', function(){
+        if($(this).val()=='2') {
+            $('.discount').val(0);
+            //reclaculate the total calculation after exclude per item discount after setting per item discount 0
+            $('.discount').keyup();
+            $('.discount').attr('readonly', true);
+            $('#perOrderDiscount').attr('readonly', false);
+        }else{
+            $('.discount').attr('readonly', false);
+            $('#perOrderDiscount').val(0);
+            //reclaculate the total calculation after exclude per item discount after setting per item discount 0
+            $('.discount').keyup();
+            $('#perOrderDiscount').attr('readonly', true);
+        }
+    });
+
+
+    //per order discount key up event
+    $(document).on('keyup', '#perOrderDiscount', function(){
+
+        // Calculate subTotal
+        var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($(this).val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
+        $("#subTotal").html(subTotal);
+        //Fetch delivery fee
+        var deliveryFee = parseFloat($("#delivery_price").val());
+        // Calculate taxTotal
+        var taxTotal = calculateTaxTotal();
+        $("#taxTotal").text(taxTotal);
+        // Calculate GrandTotal
+        var grandTotal = (subTotal + taxTotal + deliveryFee);
+        $("#grandTotal").val(grandTotal);
 
     });
       
@@ -772,6 +848,23 @@ $(function() {
         return result;
       }
 
+
+    //Calculate disccount for per order
+    function calculatePerOrderDiscount(total, discount){
+        var finalDiscount = (discount * total)/100;
+        var totalAfterDiscount = total - finalDiscount;
+
+        return totalAfterDiscount;
+    }
+
+    //Calculation after excluding order discount
+    function excludeOrderDiscount(total, discount){
+        var finalDiscount = (discount * total)/100;
+        var totalAfterDiscount = total + finalDiscount;
+
+        return totalAfterDiscount;
+    }
+
 // Item form validation
     $('#salesForm').validate({
         rules: {
@@ -801,6 +894,8 @@ $(function() {
 
     $(document).ready(function(){
         var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
       });
 
