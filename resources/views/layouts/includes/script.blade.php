@@ -246,6 +246,14 @@ $("#notifications").fadeTo(2000, 500).slideUp(500, function(){
     $("#notifications").slideUp(500);
 });
 
+  //Calculate disccount for per order
+  function calculatePerOrderDiscount(total, discount){
+      var finalDiscount = (discount * total)/100;
+      var totalAfterDiscount = total - finalDiscount;
+
+      return totalAfterDiscount;
+  }
+
 // Google analytics start
 
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

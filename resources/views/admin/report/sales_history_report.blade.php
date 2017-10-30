@@ -71,8 +71,11 @@
             $duplicateResult = salesReportRemoveDuplicates($item->order_reference_id, $orderIdsArray);
             $orderIdsArray[] = $item->primary_order_no;
 
+            $salesTotalDiscount = ($item->sales_price_total*$item->order_discount_percent)/100;
+            $salesTotal = $item->sales_price_total-$salesTotalDiscount;
+
             //if($duplicateResult){
-                $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
+                $profit = ($salesTotal-$item->purch_price_amount-$item->tax);
 
                 if($item->purch_price_amount == 0){
                   $profit_margin = 100;
@@ -81,7 +84,7 @@
                 }
 
                 $qty_total += $item->qty;
-                $sales_total += $item->sales_price_total-$item->tax;
+                $sales_total += $salesTotal-$item->tax;
                 $cost_total += $item->purch_price_amount;
                 $tax_total += $item->tax;
                 $profit_total += $profit;
@@ -164,8 +167,11 @@
                 $duplicateResult = salesReportRemoveDuplicates($item->order_reference_id, $ordIdArray);
                 $ordIdArray[] = $item->primary_order_no;
 
+                $salesTotalDiscount = ($item->sales_price_total*$item->order_discount_percent)/100;
+                $salesTotal = $item->sales_price_total-$salesTotalDiscount;
+
                 //if($duplicateResult){
-                    $profit = ($item->sales_price_total-$item->purch_price_amount-$item->tax);
+                    $profit = ($salesTotal-$item->purch_price_amount-$item->tax);
 
                     if($item->purch_price_amount == 0){
                       $profit_margin = 100;
@@ -174,7 +180,7 @@
                     }
 
                     $qty += $item->qty;
-                    $sales_price += $item->sales_price_total;
+                    $sales_price += $salesTotal;
                     $purchase_price += $item->purch_price_amount;
                     $tax += $item->tax;
                     $total_profit += $profit
@@ -189,7 +195,7 @@
 
                       <td class="text-center"><a href="{{URL::to('/')}}/customer/edit/{{$item->debtor_no}}">{{ $item->name }}</a></td>
                       <td class="text-center">{{ $item->qty }}</td>
-                      <td class="text-center">{{ number_format(($item->sales_price_total-$item->tax),2,'.',',') }}</td>
+                      <td class="text-center">{{ number_format(($salesTotal-$item->tax),2,'.',',') }}</td>
                       <td class="text-center">{{ number_format(($item->purch_price_amount),2,'.',',') }}</td>
                       <td class="text-center">{{ number_format(($item->tax),2,'.',',') }}</td>
                       <td class="text-center">{{ number_format(($profit),2,'.',',') }}</td>

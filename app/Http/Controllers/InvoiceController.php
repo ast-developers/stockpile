@@ -34,7 +34,8 @@ class InvoiceController extends Controller
         $data['menu'] = 'sales';
         $data['sub_menu'] = 'sales/direct-invoice';
 
-        $data['taxType'] = $this->sale->calculateTaxRow($invoiceNo);
+        //$data['taxType'] = $this->sale->calculateTaxRow($invoiceNo);
+        $data['taxType'] = $this->sale->calculateTaxRow($orderNo);
         $data['locData'] = DB::table('location')->get();
         
         $data['saleDataOrder'] = DB::table('sales_orders')

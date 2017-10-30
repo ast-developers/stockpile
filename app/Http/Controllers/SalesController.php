@@ -296,6 +296,8 @@ class SalesController extends Controller
         $salesOrder['comments'] = $request->comments;
         $salesOrder['total'] = $request->total;
         $salesOrder['delivery_price'] = $request->delivery_price;
+        $salesOrderInvoice['discount_type']              = $request->discount_type;
+        $salesOrderInvoice['discount_percent']              = $request->perOrderDiscount;
         $salesOrder['payment_term'] = $request->payment_term;
         $salesOrder['updated_at'] = date('Y-m-d H:i:s');
        // d($salesOrder);

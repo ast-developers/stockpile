@@ -188,7 +188,8 @@ return [
         'add_new_supplier' => 'Add New Supplier',
         'branch_total'     => 'Branch',
         'delivery_price'   => 'Delivery Fee',
-        
+        'discount_type'   => 'Discount Type',
+
 
         'company'                     => 'Company',
         'db_host'                     => 'Database Host',

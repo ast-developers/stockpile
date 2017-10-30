@@ -123,19 +123,28 @@
                         @endif
                     @endforeach
 
-                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><strong id="perOrderDiscount">{{$orderInfo->discount_percent}}</strong></td></tr>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee">{{$orderInfo->delivery_price}}</strong></td></tr>
                   <?php
                  
                     $taxAmount = 0;
                   ?>
+
                   @foreach($taxType as $rate=>$tax_amount)
-                  @if(in_array($rate,$taxArray))
+                  {{--@if(in_array($rate,$taxArray))--}}
                   <tr class="tax_rate_{{str_replace('.','_',$rate)}}"><td colspan="6" align="right">{{ trans('message.invoice.plus_tax') }}({{$rate}}%)</td><td colspan="2" class="item-taxs" id="totalTaxs_{{str_replace('.','_',$rate)}}">{{$tax_amount}}</td></tr>
                   <?php
                     $taxAmount += $tax_amount;
                   ?>
-                  @endif
+                  {{--@endif--}}
                   @endforeach
+
+                    <?php
+                    $subTotalDiscountPrice = ($subTotalAmount*$orderInfo->discount_percent)/100;
+                    $subTotalAmount = ($subTotalAmount-$subTotalDiscountPrice);
+                    ?>
+
                   <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td align="left" colspan="2"><input type='text' class="form-control" id = "grandTotal" value="{{($subTotalAmount+$taxAmount)}}" readonly></td></tr>
                   @endif
                   </tbody>
@@ -164,6 +173,11 @@
     </section>
 @endsection
 @section('js')
+
+    <script type="text/javascript">
+        var perOrderPercentage = '<?php echo $orderInfo->discount_percent; ?>';
+    </script>
+
     <script type="text/javascript">
 
     $(function () {
@@ -218,6 +232,8 @@
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
@@ -295,6 +311,8 @@
 
     $(document).ready(function(){
         var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat(perOrderPercentage);
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
       });
 
