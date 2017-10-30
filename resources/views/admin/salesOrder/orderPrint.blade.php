@@ -21,7 +21,7 @@
 
 </head>
 <style>
- body{ font-family:Helvetica, sans-serif; color:#121212; line-height:22px;}
+ body{ font-family:DejaVu Sans, sans-serif; color:#121212; line-height:20px;}
  table, tr, td{
     border-bottom: 1px solid #d1d1d1;
     padding: 6px 0px;
@@ -77,7 +77,7 @@ tr{ height:40px;}
       <td>S/N</td>
       <td>Item Description</td>
       <td>Quantity</td>
-      <td>Price($)</td>
+      <td>Price({{Session::get('currency_symbol')}})</td>
       <td>Tax(%)</td>
       <td>Discount(%)</td>
       <td style="padding-right:10px;text-align:right">Amount($)</td>
