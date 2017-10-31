@@ -189,36 +189,6 @@ class ShipmentController extends Controller
     }
 
     public function storeAutoShipment($orderNo){
-
-        //------Insert the stock record, like when we create it on auto invoice create----
-        $stockMovesTableEntry = DB::table('stock_moves')->where('order_no', '=', $orderNo)->get();
-
-        //Insert the record if not inserted before, at the time of invoice generation
-        if(!$stockMovesTableEntry){
-            $invoiceInfos = $this->order->getRestOrderItemsByOrderID($orderNo);
-            $orderInfo    = DB::table('sales_orders')->where('order_no', '=', $orderNo)->first();
-            $userId       = \Auth::user()->id;
-
-            foreach ($invoiceInfos as $i => $invoiceInfo) {
-                // create stockMove
-                $stockMove['stock_id']                 = $invoiceInfo->stock_id;
-                $stockMove['order_no']                 = $orderNo;
-                $stockMove['loc_code']                 = $orderInfo->from_stk_loc;
-                $stockMove['tran_date']                = date('Y-m-d');
-                $stockMove['person_id']                = $userId;
-                $stockMove['reference']                = 'store_out_' . $orderNo;
-                $stockMove['transaction_reference_id'] = $orderNo;
-                $stockMove['qty']                      = '-' . $invoiceInfo->item_rest;
-                $stockMove['price']                    = $invoiceInfo->unit_price;
-                $stockMove['trans_type']               = SALESINVOICE;
-                $stockMove['order_reference']          = $orderInfo->reference;
-
-                DB::table('stock_moves')->insertGetId($stockMove);
-            }
-        }
-
-        //-------Insertion in stock table----------
-
         $shipmentItem = $this->shipment->getAvailableItemsByOrderID($orderNo);
         
         $shipmentData['order_no'] =  $orderNo;
@@ -231,9 +201,13 @@ class ShipmentController extends Controller
         $shipmentQty = array();
         $shipmentHistory = array();
         foreach ($shipmentItem as $key => $item) {
+            $shipQty = ((int)abs($item->item_invoiced)-$item->item_shipted);
+            if(!$shipQty){
+                $shipQty = $item->quantity;
+            }
 
            $shipmentQty[$key]['stock_id'] = $item->stock_id;
-           $shipmentQty[$key]['shipment_qty'] = ((int)abs($item->item_invoiced)-$item->item_shipted);
+           $shipmentQty[$key]['shipment_qty'] = $shipQty;
 
            // Array for shipmentHistory
            $shipmentHistory[$key]['shipment_id'] =  $shipmentId;
@@ -242,7 +216,7 @@ class ShipmentController extends Controller
            $shipmentHistory[$key]['tax_type_id'] =  $item->tax_type_id;
            $shipmentHistory[$key]['discount_percent'] =  $item->discount_percent;
            $shipmentHistory[$key]['unit_price'] =  $item->unit_price;
-           $shipmentHistory[$key]['quantity'] =  ((int)abs($item->item_invoiced)-$item->item_shipted);
+           $shipmentHistory[$key]['quantity'] =  $shipQty;
 
        }
 
