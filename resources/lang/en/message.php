@@ -154,6 +154,8 @@ return [
         'add_new_customer'         => 'Add New Customer',
         'add_new_order'            => 'Add New Order',
         'add_new_invoice'          => 'Add New Invoice',
+        //----
+        'add_new_contract'            => 'Add New Contract',
     ],
     'table'   => [
         'category_name'    => 'Category Name',
@@ -257,7 +259,13 @@ return [
         'total_qty'                   => 'Total Quantity',
         'order_info'                  => 'Order Information',
         'sales_order_no'              => 'Sales Orders',
-        
+        'job_contract_no'              => 'Job Contracts',
+
+        //------
+        'contract'                       => 'Job Contract',
+
+
+
         'invoices'                    =>'Invoices',
         'manual_invoice_title'        =>'Create Manually',
         'automatic_invoice_title'     =>'Create Automatically',
@@ -718,6 +726,8 @@ return [
     'payment_success'         => 'Payments completed successfully',
     'all'                     => 'All',
     'filter'                  => 'Filter',
+    'job_contract'             => 'Job Contracts',
+    'new_job_contract'         => 'New Job Contracts',
 
 ],
       'purchase_report' =>[

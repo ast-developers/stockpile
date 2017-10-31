@@ -40,8 +40,8 @@ class DatabaseSeeder extends Seeder
         $this->call(SecurityRoleTableSeeder::class);
 
         $this->call(StockCategoryTableSeeder::class);
-        /*
 
+        /*
         $this->call(AdminUserTableSeeder::class); 
 
         $this->call(DebtorMasterTableSeeder::class); 
@@ -74,8 +74,12 @@ class DatabaseSeeder extends Seeder
 
         $this->call(SupplierTableSeeder::class); 
 
-        $this->call(StockMoveTableSeeder::class); 
-        */
+        $this->call(StockMoveTableSeeder::class);
+
+        $this->call(JobContractTableSeeder::class);
+
+        $this->call(JobContractDetailsTableSeeder::class);
+       */
 
     }
 }

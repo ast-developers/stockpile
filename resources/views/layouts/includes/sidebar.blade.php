@@ -38,6 +38,11 @@
                 <span>{{ trans('message.table.sales_order_no') }}</span>
               </a>
             </li>
+            <li <?= isset($sub_menu) && $sub_menu == 'contract/list' ? ' class="active"' : ''?> >
+              <a href="{{url('contract/list')}}">
+                <span>{{ trans('message.table.job_contract_no') }}</span>
+              </a>
+            </li>
             <li <?= isset($sub_menu) && $sub_menu == 'sales/direct-invoice' ? ' class="active"' : ''?> >
               <a href="{{url('sales/list')}}">
                 

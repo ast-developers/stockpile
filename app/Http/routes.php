@@ -179,7 +179,16 @@
 		Route::get('order/pdf/{order_id}','SalesOrderController@orderPdf');
 		Route::get('order/print/{order_id}','SalesOrderController@orderPrint');
 		Route::post('order/email-order-info','SalesOrderController@sendOrderInformationByEmail');	
-		Route::get('order/filtering','SalesOrderController@orderFiltering');	
+		Route::get('order/filtering','SalesOrderController@orderFiltering');
+
+		//create Job Contracts
+		Route::get('contract/list','JobContractController@index');
+		Route::get('contract/add','JobContractController@create');
+		Route::post('contract/save','JobContractController@store');
+		Route::get('contract/edit/{id}','JobContractController@edit');
+		Route::post('contract/update','JobContractController@update');
+		Route::post('contract/delete/{id}','JobContractController@destroy');
+		Route::get('contract/view-order/{id}','JobContractController@viewOrder');
 
 
 		// Invoice Routing
