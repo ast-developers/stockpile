@@ -100,6 +100,7 @@
 
                       <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="center" colspan="2"><strong id="perOrderDiscount">{{$orderInfo->discount_percent}}</strong></td></tr>
                       <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="center" colspan="2"><strong id="subTotal"></strong></td></tr>
+                      <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="center" colspan="2"><strong id="deliveryFee">{{$orderInfo->delivery_price}}</strong></td></tr>
                         @foreach($taxInfo as $rate=>$tax_amount)
                         <tr class="tax_rate_{{str_replace('.','_',$rate)}}">
                           <td colspan="5" align="right">{{ trans('message.invoice.plus_tax') }}({{$rate}}%)</td>
@@ -108,7 +109,7 @@
                           $taxAmount += $tax_amount;
                         ?>
                         @endforeach                  
-                      <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td colspan="2"><input type='text' class="form-control text-center" id = "grandTotal" value="{{$subTotalAmount+$taxAmount}}" readonly></td></tr>
+                      <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td colspan="2"><input type='text' class="form-control text-center" id = "grandTotal" value="{{$subTotalAmount+$taxAmount+$orderInfo->delivery_price}}" readonly></td></tr>
                       </tbody>
                     </table>
                     </div>
@@ -134,6 +135,7 @@
 
     <script type="text/javascript">
         var perOrderPercentage = '<?php echo $orderInfo->discount_percent; ?>';
+        var deliveryPrice = parseFloat('<?php echo $orderInfo->delivery_price; ?>');
     </script>
 
     <script type="text/javascript">
@@ -190,7 +192,7 @@
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal);
+      var grandTotal = (subTotal + taxTotal + deliveryPrice);
       $("#grandTotal").val(grandTotal);
     });
 

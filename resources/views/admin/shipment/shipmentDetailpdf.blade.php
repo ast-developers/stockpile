@@ -112,12 +112,14 @@ tr{ height:40px;}
          Total Quantity<br />
           <strong>Discount(%)</strong><br/>
        <strong>SubTotal</strong><br/>
+          <strong>Delivery Fee</strong><br/>
         </td>   
 
       <td style="text-align:right; padding-right:10px;border-bottom:none">
         {{$sum}}<br />
           {{$customerInfo->discount_percent}}<br/>
-       {{Session::get('currency_symbol').number_format(($subTotalAmount),2,'.',',')}}<br/>
+            {{Session::get('currency_symbol').number_format(($subTotalAmount),2,'.',',')}}<br/>
+          {{Session::get('currency_symbol').number_format(($customerInfo->delivery_price),2,'.',',')}}<br/>
       </td>
     </tr>
 
@@ -140,7 +142,7 @@ tr{ height:40px;}
 
     <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">
       <td colspan="6" style="text-align:right;"><strong>Grand Total</strong></td>
-      <td style="text-align:right; padding-right:10px"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount),2,'.',',')}}</strong></td>
+      <td style="text-align:right; padding-right:10px"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount+$customerInfo->delivery_price),2,'.',',')}}</strong></td>
     </tr>
    </table> 
     </div>
