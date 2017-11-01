@@ -318,7 +318,7 @@ class ShipmentController extends Controller
       $data['orderInfo']  = DB::table('sales_orders')
                           ->leftjoin('location','location.loc_code','=','sales_orders.from_stk_loc')
                           ->where('order_no',$order_no)
-                          ->select('sales_orders.reference','sales_orders.order_no','location.location_name', 'sales_orders.discount_percent')
+                          ->select('sales_orders.reference','sales_orders.order_no','location.location_name', 'sales_orders.discount_percent', 'sales_orders.delivery_price')
                           ->first();
       $data['invoiceList'] = DB::table('sales_orders')
                               ->where('order_reference',$data['orderInfo']->reference)
@@ -376,7 +376,7 @@ class ShipmentController extends Controller
                              ->leftjoin('debtors_master','debtors_master.debtor_no','=','sales_orders.debtor_no')
                              ->leftjoin('cust_branch','cust_branch.branch_code','=','sales_orders.branch_id')
                              ->leftjoin('countries','countries.id','=','cust_branch.shipping_country_id')
-                             ->select('debtors_master.name','debtors_master.phone','debtors_master.email','cust_branch.br_name','cust_branch.br_address','cust_branch.shipping_street','cust_branch.shipping_city','cust_branch.shipping_state','cust_branch.shipping_zip_code','countries.country','cust_branch.shipping_country_id', 'sales_orders.discount_percent')
+                             ->select('debtors_master.name','debtors_master.phone','debtors_master.email','cust_branch.br_name','cust_branch.br_address','cust_branch.shipping_street','cust_branch.shipping_city','cust_branch.shipping_state','cust_branch.shipping_zip_code','countries.country','cust_branch.shipping_country_id', 'sales_orders.discount_percent', 'sales_orders.delivery_price')
                              ->first();
       $data['shipment']   = DB::table('shipment')->where('id',$shipmentId)->select('id','status','delivery_date')->first();
       $data['order_no']   = $orderNo;
@@ -407,7 +407,7 @@ class ShipmentController extends Controller
                              ->leftjoin('debtors_master','debtors_master.debtor_no','=','sales_orders.debtor_no')
                              ->leftjoin('cust_branch','cust_branch.branch_code','=','sales_orders.branch_id')
                              ->leftjoin('countries','countries.id','=','cust_branch.shipping_country_id')
-                             ->select('debtors_master.name','debtors_master.phone','debtors_master.email','cust_branch.br_name','cust_branch.br_address','cust_branch.shipping_street','cust_branch.shipping_city','cust_branch.shipping_state','cust_branch.shipping_zip_code','countries.country','cust_branch.shipping_country_id', 'sales_orders.discount_percent')
+                             ->select('debtors_master.name','debtors_master.phone','debtors_master.email','cust_branch.br_name','cust_branch.br_address','cust_branch.shipping_street','cust_branch.shipping_city','cust_branch.shipping_state','cust_branch.shipping_zip_code','countries.country','cust_branch.shipping_country_id', 'sales_orders.discount_percent', 'sales_orders.delivery_price')
                              ->first();
       //d($data['customerInfo'],1);
       $data['shipment']   = DB::table('shipment')->where('id',$shipmentId)->select('id','status','delivery_date')->first();
