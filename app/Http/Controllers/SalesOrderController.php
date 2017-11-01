@@ -8,13 +8,14 @@ use App\Model\Orders;
 use App\Http\Requests;
 use App\Model\Sales;
 use App\Model\Shipment;
+use App\Http\Controllers\PaymentController;
 use DB;
 use PDF;
 use Session;
 
 class SalesOrderController extends Controller
 {
-    public function __construct(Orders $orders, Sales $sales, Shipment $shipment, EmailController $email)
+    public function __construct(Orders $orders, Sales $sales, Shipment $shipment, EmailController $email, PaymentController $paymentController)
     {
         /**
          * Set the database connection. reference app\helper.php
@@ -24,6 +25,7 @@ class SalesOrderController extends Controller
         $this->sale     = $sales;
         $this->shipment = $shipment;
         $this->email    = $email;
+        $this->paymentController = $paymentController;
     }
 
     /**
@@ -158,9 +160,25 @@ class SalesOrderController extends Controller
         $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['discount_type']        = $request->discount_type;
         $salesOrder['discount_percent']        = $request->perOrderDiscount;
+        $salesOrder['paid_amount']        = $request->downpayment;
         $salesOrder['created_at']   = date('Y-m-d H:i:s');
         // d($salesOrder,1);
         $salesOrderId = \DB::table('sales_orders')->insertGetId($salesOrder);
+
+        //Insert the record into the payment table while select downpayment in creating sales order
+        /*if($request->downpayment > 0) {
+            $this->paymentController->payAllAmount($salesOrderId, $request->downpayment);
+
+            //Update customer total debit value after downpayment
+            $customerData = fetchCustomerDebit($request->debtor_no);
+            $currentDebit = $customerData[0]->total_debit;
+            $currentCredit = $customerData[0]->total_credit;
+
+            $finalDebit = $currentDebit + ($request->total-$request->downpayment);
+            DB::table('debtors_master')->where('debtor_no', $request->debtor_no)->update(['total_debit'=>$finalDebit]);
+
+        }*/
+
 
 
         for ($i = 0; $i < count($itemIds); $i++) {

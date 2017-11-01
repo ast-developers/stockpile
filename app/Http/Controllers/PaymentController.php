@@ -157,7 +157,14 @@ class PaymentController extends Controller
             ->get();
 
         $data['invoiceQty'] = DB::table('stock_moves')->where(['order_no' => $data['paymentInfo']->order_reference_id, 'trans_type' => SALESINVOICE])->sum('qty');
+        if(empty($data['invoiceQty'])){
+            $data['invoiceQty'] = DB::table('stock_moves')->where(['order_no' => $data['paymentInfo']->order_no, 'trans_type' => SALESINVOICE])->sum('qty');
+        }
+
         $data['orderQty']   = DB::table('sales_order_details')->where(['order_no' => $data['paymentInfo']->order_reference_id, 'trans_type' => SALESORDER])->sum('quantity');
+        if(empty($data['orderQty'])){
+            $data['orderQty']   = DB::table('sales_order_details')->where(['order_no' => $data['paymentInfo']->order_no, 'trans_type' => SALESORDER])->sum('quantity');
+        }
 
         $data['paymentsList']   = DB::table('payment_history')
             ->where(['order_reference' => $data['paymentInfo']->order_reference])
@@ -265,7 +272,7 @@ class PaymentController extends Controller
     /**
      * Pay all amount
      */
-    public function payAllAmount($order_no)
+    public function payAllAmount($order_no, $downpayment='')
     {
         //Fetch data after generating invoice
         $allInvoiced = DB::table('sales_orders')->where('order_reference_id', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount')->get();
@@ -279,8 +286,40 @@ class PaymentController extends Controller
         //d($allInvoiced,1);
         foreach ($allInvoiced as $key => $value) {
             $amount = ($value->invoiced_amount - $value->paid_amount);
-            // d($amount,1);
-            DB::table('sales_orders')->where('order_no', $value->inv_no)->update(['paid_amount' => $value->invoiced_amount]);
+            //Payment order already inserted while creating sales order
+            if(!empty($downpayment)){
+                $amount = $value->paid_amount;
+            }else{
+                DB::table('sales_orders')->where('order_no', $value->inv_no)->update(['paid_amount' => $value->invoiced_amount]);
+            }
+
+            //Check if total order amount is less than amount paid
+            /*$totalAmountPaid = fetchTotalAmountPaidForOrder($value->reference);
+            $finalAmountPaid = $totalAmountPaid + $amount;
+            echo $finalAmountPaid." ".$value->invoiced_amount;*/
+            /*
+                For an order -
+                  Total payment history amount + Current paying amount = Total order amount
+                  then minus the amount from the total debit for an customer
+            */
+            /*if($finalAmountPaid == $value->invoiced_amount){
+                echo "in if";
+                //Update customer total debit value after downpayment
+                $customerData = fetchCustomerDebit($value->customer_id);
+                $currentDebit = $customerData[0]->total_debit;
+                $currentCredit = $customerData[0]->total_credit;
+
+                if($currentDebit>0) {
+                    $finalDebit = $currentDebit - $amount;
+                    DB::table('debtors_master')->where('debtor_no', $value->customer_id)->update(['total_debit' => $finalDebit]);
+                }
+            }
+
+            echo "in else"; die;*/
+
+            /*  Customer table update ends */
+
+
             if (abs($amount) >= 0) {
                 $payment[$key]['invoice_reference'] = (string)$value->reference;
                 $payment[$key]['order_reference']   = ($value->order_reference) ? (string)$value->order_reference : (string)$value->reference;
@@ -293,7 +332,10 @@ class PaymentController extends Controller
                 //d($payment,1);
                 $payments = DB::table('payment_history')->insertGetId($payment[$key]);
             }
+
         }
+
+
         \Session::flash('success', trans('message.extra_text.payment_success'));
         return redirect()->intended('order/view-order-details/' . $order_no);
 
