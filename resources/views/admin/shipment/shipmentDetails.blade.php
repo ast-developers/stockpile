@@ -132,6 +132,8 @@
                             <tr><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="right" colspan="2"><strong id="perOrderDiscount">{{$orderInfo->discount_percent}}</strong></td></tr>
 
                             <tr><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="right"><strong>{{ Session::get('currency_symbol').number_format($subTotalAmount,2,'.',',') }}</strong></td></tr>
+
+                        <tr><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}</strong></td><td align="right"><strong>{{ Session::get('currency_symbol').number_format($orderInfo->delivery_price,2,'.',',') }}</strong></td></tr>
                             
                             @foreach($taxInfo as $rate=>$tax_amount)
                             @if($rate != 0)
@@ -145,7 +147,7 @@
                             @endforeach
                             <tr class="tableInfos">
                               <td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td>
-                              <td align="right" colspan="2"><strong>{{ Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount),2,'.',',') }}</strong></td>
+                              <td align="right" colspan="2"><strong>{{ Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount+$orderInfo->delivery_price),2,'.',',') }}</strong></td>
                             </tr>
                          
                         </tbody>
