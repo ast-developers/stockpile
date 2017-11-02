@@ -168,6 +168,9 @@
 		Route::get('order/view-order/{id}','SalesOrderController@viewOrder');
 		Route::post('order/convert-order','SalesOrderController@convertOrder');
 
+		Route::get('order/return/{id}','SalesOrderController@order_return');
+		Route::post('order/returnUpdate','SalesOrderController@update_orderReturn');
+
 		Route::post('order/search','SalesOrderController@search');
 		Route::post('order/quantity-validation','SalesOrderController@quantityValidation');
 
