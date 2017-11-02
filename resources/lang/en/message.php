@@ -721,6 +721,8 @@ return [
     'payment_success'         => 'Payments completed successfully',
     'all'                     => 'All',
     'filter'                  => 'Filter',
+    'order_return'                  => 'Order Return',
+
 
 ],
       'purchase_report' =>[
