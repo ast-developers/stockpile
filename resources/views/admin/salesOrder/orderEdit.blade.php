@@ -984,6 +984,17 @@ $(function() {
         var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
         subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
+
+        var grandTotal = parseFloat($('#grandTotal').val());
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
+
       });
 
     </script>
