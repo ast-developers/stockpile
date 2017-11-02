@@ -372,6 +372,11 @@ function backup_tables($host,$user,$pass,$name,$tables = '*')
 
 function getTotalPaidAmountByOrder($order_reference,$order_no){
     $invoiceInfo = \DB::select("SELECT SUM(total) as invoiceAmount,SUM(paid_amount) as paidAmount FROM sales_orders WHERE order_reference_id = '$order_no'");
+
+    if(($invoiceInfo[0]->invoiceAmount=='') && ($invoiceInfo[0]->paidAmount=='')){
+        $invoiceInfo = \DB::select("SELECT SUM(total) as invoiceAmount,SUM(paid_amount) as paidAmount FROM sales_orders WHERE order_no = '$order_no'");
+    }
+
     $dueAmount = ($invoiceInfo[0]->invoiceAmount - $invoiceInfo[0]->paidAmount);
     //d($dueAmount,1);
     return $dueAmount;
@@ -386,4 +391,14 @@ function salesReportRemoveDuplicates($ordId, $ordIdArray){
         return true;
     }
 
+}
+
+function fetchCustomerDebit($customerId){
+    $debtorInfo = \DB::select("SELECT total_debit, total_credit FROM debtors_master WHERE debtor_no = '$customerId'");
+    return $debtorInfo;
+}
+
+function fetchTotalAmountPaidForOrder($invoiceRef){
+    $paymentInfo = \DB::select("SELECT COALESCE(SUM(amount), 0) as total_paid FROM payment_history WHERE invoice_reference = '$invoiceRef'");
+    return $paymentInfo[0]->total_paid;
 }

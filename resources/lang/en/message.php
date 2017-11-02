@@ -92,6 +92,8 @@ return [
         'full_name'                => 'Full Name',
         'password'                 => 'Password',
         'old_password'             => 'Old Password',
+        'total_debit' => 'Total Debit',
+        'total_credit' => 'Total Credit',
         //------
         'set_password'             => 'Set Password',
         'new_password'             => 'New Password',
@@ -191,6 +193,7 @@ return [
         'branch_total'     => 'Branch',
         'delivery_price'   => 'Delivery Fee',
         'discount_type'   => 'Discount Type',
+        'downpayment'   => 'Down Payment',
 
 
         'company'                     => 'Company',
@@ -726,6 +729,8 @@ return [
     'payment_success'         => 'Payments completed successfully',
     'all'                     => 'All',
     'filter'                  => 'Filter',
+    'order_return'                  => 'Order Return',
+
     'job_contract'             => 'Job Contracts',
     'new_job_contract'         => 'New Job Contracts',
 

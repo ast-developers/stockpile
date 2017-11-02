@@ -8,13 +8,26 @@ use App\Model\Orders;
 use App\Http\Requests;
 use App\Model\Sales;
 use App\Model\Shipment;
+use App\Http\Controllers\PaymentController;
 use DB;
 use PDF;
 use Session;
 
+/**
+ * Class SalesOrderController
+ *
+ * @package App\Http\Controllers
+ */
 class SalesOrderController extends Controller
 {
-    public function __construct(Orders $orders, Sales $sales, Shipment $shipment, EmailController $email)
+    /**
+     * @param \App\Model\Orders                       $orders
+     * @param \App\Model\Sales                        $sales
+     * @param \App\Model\Shipment                     $shipment
+     * @param \App\Http\Controllers\EmailController   $email
+     * @param \App\Http\Controllers\PaymentController $paymentController
+     */
+    public function __construct(Orders $orders, Sales $sales, Shipment $shipment, EmailController $email, PaymentController $paymentController)
     {
         /**
          * Set the database connection. reference app\helper.php
@@ -24,6 +37,7 @@ class SalesOrderController extends Controller
         $this->sale     = $sales;
         $this->shipment = $shipment;
         $this->email    = $email;
+        $this->paymentController = $paymentController;
     }
 
     /**
@@ -158,9 +172,26 @@ class SalesOrderController extends Controller
         $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['discount_type']        = $request->discount_type;
         $salesOrder['discount_percent']        = $request->perOrderDiscount;
+        $salesOrder['paid_amount']        = $request->downpayment;
         $salesOrder['created_at']   = date('Y-m-d H:i:s');
-        // d($salesOrder,1);
+
         $salesOrderId = \DB::table('sales_orders')->insertGetId($salesOrder);
+
+        //Insert the record into the payment table while select downpayment in creating sales order
+        if($request->downpayment > 0) {
+            $this->paymentController->payAllAmount($salesOrderId, $request->downpayment);
+            $salesOrderDebit['debit_amount'] = $request->total - $request->downpayment;
+            //;$currentCredit = $customerData[0]->total_credit;
+            //Update sales order table
+            DB::table('sales_orders')->where('order_no', $salesOrderId)->update($salesOrderDebit);
+        }
+
+        //Update sales order when grand total is a negative value and it should treated as credit value
+        if($request->total < 0){
+            $salesOrderCredit['credit_amount'] = abs($request->total);
+            DB::table('sales_orders')->where('order_no', $salesOrderId)->update($salesOrderCredit);
+        }
+
 
 
         for ($i = 0; $i < count($itemIds); $i++) {
@@ -263,10 +294,28 @@ class SalesOrderController extends Controller
         $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['discount_type']        = $request->discount_type;
         $salesOrder['discount_percent']        = $request->perOrderDiscount;
+        $salesOrder['paid_amount']        = $request->downpayment;
         $salesOrder['updated_at']   = date('Y-m-d H:i:s');
         //d($salesOrder,1);
 
         DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrder);
+
+        //Insert the record into the payment table while select downpayment in creating sales order
+        if($request->downpayment > 0) {
+            $this->paymentController->payAllAmount($order_no, $request->downpayment, true);
+            $salesOrderDebit['debit_amount'] = $request->total - $request->downpayment;
+            //;$currentCredit = $customerData[0]->total_credit;
+            //Update sales order table
+            DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrderDebit);
+        }
+
+        //Update sales order when grand total is a negative value and it should treated as credit value
+        if($request->total < 0){
+            $salesOrderCredit['credit_amount'] = abs($request->total);
+            DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrderCredit);
+        }
+
+
         if (count($itemQty) > 0) {
             $invoiceData = $this->order->getSalseInvoiceByID($order_no);
             $invoiceData = objectToArray($invoiceData);
@@ -355,6 +404,193 @@ class SalesOrderController extends Controller
         return redirect()->intended('order/view-order-details/' . $order_no);
     }
 
+
+    /**
+     * Functionality to return your order
+     * @param $orderNo
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function order_return($orderNo)
+    {
+        $data['menu']         = 'sales';
+        $data['sub_menu']     = 'order/list';
+        $data['taxType']      = $this->order->calculateTaxRow($orderNo);
+        $data['customerData'] = DB::table('debtors_master')->get();
+        $data['locData']      = DB::table('location')->get();
+        $data['invoiceData']  = $this->order->getSalseInvoiceByID($orderNo);
+        $data['saleData']     = DB::table('sales_orders')->where('order_no', '=', $orderNo)->first();
+        $data['branchs']      = DB::table('cust_branch')->select('debtor_no', 'branch_code', 'br_name')->where('debtor_no', $data['saleData']->debtor_no)->orderBy('br_name', 'ASC')->get();
+        $data['payments']     = DB::table('payment_terms')->get();
+        $data['invoicedItem'] = DB::table('stock_moves')->where(['order_no' => $orderNo])->lists('stock_id');
+        $data['salesType']    = DB::table('sales_types')->select('sales_type', 'id')->get();
+
+        //d($data['invoiceData'],1);
+
+        $taxTypeList = DB::table('item_tax_types')->get();
+        $taxOptions  = '';
+        $selectStart = "<select class='form-control taxList' name='tax_id_new[]'>";
+        $selectEnd   = "</select>";
+
+        foreach ($taxTypeList as $key => $value) {
+            $taxOptions .= "<option value='" . $value->id . "' taxrate='" . $value->tax_rate . "'>" . $value->name . '(' . $value->tax_rate . ')' . "</option>";
+        }
+        $data['tax_type_new'] = $selectStart . $taxOptions . $selectEnd;
+        $data['tax_types']    = $taxTypeList;
+
+        return view('admin.salesOrder.orderReturn', $data);
+    }
+
+
+
+    /**
+     * Order return save into the databse and manage inventory as per the same
+     * Update the specified resource in storage.
+     **/
+    public function update_orderReturn(Request $request)
+    {
+        $userId   = \Auth::user()->id;
+        $order_no = $request->order_no;
+        $this->validate($request, [
+            'from_stk_loc' => 'required',
+            'ord_date'     => 'required',
+            'debtor_no'    => 'required',
+            'branch_id'    => 'required',
+            'payment_id'   => 'required'
+        ]);
+
+        $itemQty      = $request->item_quantity;
+        $itemIds      = $request->item_id;
+        $unitPrice    = $request->unit_price;
+        $taxIds       = $request->tax_id;
+        $itemDiscount = $request->discount;
+        $itemPrice    = $request->item_price;
+        $stock_id     = $request->stock_id;
+        $description  = $request->description;
+
+        // update sales_order table
+        $salesOrder['ord_date']   = DbDateFormat($request->ord_date);
+        $salesOrder['debtor_no']  = $request->debtor_no;
+        $salesOrder['trans_type'] = SALESORDER;
+        $salesOrder['branch_id']  = $request->branch_id;
+        $salesOrder['payment_id'] = $request->payment_id;
+
+        $salesOrder['from_stk_loc'] = $request->from_stk_loc;
+        $salesOrder['comments']     = $request->comments;
+        $salesOrder['total']        = $request->total;
+        $salesOrder['delivery_price']        = $request->delivery_price;
+        $salesOrder['discount_type']        = $request->discount_type;
+        $salesOrder['discount_percent']        = $request->perOrderDiscount;
+        $salesOrder['paid_amount']        = $request->downpayment;
+        $salesOrder['updated_at']   = date('Y-m-d H:i:s');
+        //d($salesOrder,1);
+
+        DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrder);
+
+        //Insert the record into the payment table while select downpayment in creating sales order
+        if($request->downpayment > 0) {
+            $this->paymentController->payAllAmount($order_no, $request->downpayment, true);
+            $salesOrderDebit['debit_amount'] = $request->total - $request->downpayment;
+            //;$currentCredit = $customerData[0]->total_credit;
+            //Update sales order table
+            DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrderDebit);
+        }
+
+        //Update sales order when grand total is a negative value and it should treated as credit value
+        if($request->total < 0){
+            $salesOrderCredit['credit_amount'] = abs($request->total);
+            DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrderCredit);
+        }
+
+
+        if (count($itemQty) > 0) {
+            $invoiceData = $this->order->getSalseInvoiceByID($order_no);
+            $invoiceData = objectToArray($invoiceData);
+
+            for ($i = 0; $i < count($invoiceData); $i++) {
+                if (!in_array($invoiceData[$i]['item_id'], $itemIds)) {
+                    DB::table('sales_order_details')->where([['order_no', '=', $invoiceData[$i]['order_no']], ['stock_id', '=', $invoiceData[$i]['stock_id']],])->delete();
+                }
+            }
+
+
+            foreach ($itemQty as $key => $value) {
+                $product[$itemIds[$key]] = $value;
+            }
+
+            for ($i = 0; $i < count($itemIds); $i++) {
+                foreach ($product as $key => $value) {
+                    if ($itemIds[$i] == $key) {
+
+                        // update sales_order_details table
+                        $salesOrderDetail[$i]['stock_id']         = $stock_id[$i];
+                        $salesOrderDetail[$i]['description']      = $description[$i];
+                        $salesOrderDetail[$i]['unit_price']       = $unitPrice[$i];
+                        $salesOrderDetail[$i]['qty_sent']         = $value;
+                        $salesOrderDetail[$i]['trans_type']       = SALESORDER;
+                        $salesOrderDetail[$i]['quantity']         = $value;
+                        $salesOrderDetail[$i]['discount_percent'] = $itemDiscount[$i];
+                    }
+                }
+            }
+            // d($salesOrderDetail,1);
+            for ($i = 0; $i < count($salesOrderDetail); $i++) {
+                DB::table('sales_order_details')->where(['stock_id' => $salesOrderDetail[$i]['stock_id'], 'order_no' => $order_no])->update($salesOrderDetail[$i]);
+
+            }
+
+        } else {
+            $invoiceData = $this->order->getSalseInvoiceByID($order_no);
+            $invoiceData = objectToArray($invoiceData);
+
+            for ($i = 0; $i < count($invoiceData); $i++) {
+                DB::table('sales_order_details')->where([['order_no', '=', $invoiceData[$i]['order_no']], ['stock_id', '=', $invoiceData[$i]['stock_id']],])->delete();
+            }
+            DB::table('sales_orders')->where('order_no', '=', $order_no)->delete();
+        }
+
+        if (isset($request->item_quantity_new)) {
+            $itemQty         = $request->item_quantity_new;
+            $itemIdsNew      = $request->item_id_new;
+            $unitPriceNew    = $request->unit_price_new;
+            $taxIdsNew       = $request->tax_id_new;
+            $itemDiscountNew = $request->discount_new;
+            $itemPriceNew    = $request->item_price_new;
+            $descriptionNew  = $request->description_new;
+            $stock_id_new    = $request->stock_id_new;
+
+            foreach ($itemQty as $key => $newItem) {
+                $productNew[$itemIdsNew[$key]] = $newItem;
+            }
+
+            for ($i = 0; $i < count($itemIdsNew); $i++) {
+                foreach ($productNew as $key => $value) {
+                    if ($itemIdsNew[$i] == $key) {
+
+                        // Insert new sales order detail
+                        $salesOrderDetailNew[$i]['trans_type']       = SALESORDER;
+                        $salesOrderDetailNew[$i]['order_no']         = $order_no;
+                        $salesOrderDetailNew[$i]['stock_id']         = $stock_id_new[$i];
+                        $salesOrderDetailNew[$i]['description']      = $descriptionNew[$i];
+                        $salesOrderDetailNew[$i]['qty_sent']         = $value;
+                        $salesOrderDetailNew[$i]['quantity']         = $value;
+                        $salesOrderDetailNew[$i]['discount_percent'] = $itemDiscountNew[$i];
+                        $salesOrderDetailNew[$i]['tax_type_id']      = $taxIdsNew[$i];
+                        $salesOrderDetailNew[$i]['unit_price']       = $itemPriceNew[$i];
+                    }
+                }
+            }
+            // d($salesOrderDetail,1);
+            for ($i = 0; $i < count($salesOrderDetailNew); $i++) {
+
+                DB::table('sales_order_details')->insertGetId($salesOrderDetailNew[$i]);
+            }
+        }
+
+        \Session::flash('success', trans('message.success.save_success'));
+        return redirect()->intended('order/view-order-details/' . $order_no);
+    }
+
+
     /**
      * Remove the specified resource from storage.
      **/
@@ -391,6 +627,9 @@ class SalesOrderController extends Controller
         }
     }
 
+    /**
+     * @param \Illuminate\Http\Request $request
+     */
     public function search(Request $request)
     {
 
@@ -981,6 +1220,10 @@ class SalesOrderController extends Controller
         return $pdf->download('order_' . time() . '.pdf', array("Attachment" => 0));
     }
 
+    /**
+     * @param $orderNo
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function orderPrint($orderNo)
     {
         $data['taxInfo']      = $this->sale->calculateTaxRow($orderNo);

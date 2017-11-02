@@ -76,6 +76,23 @@
                             </div>
                           </div>
 
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="inputEmail3">{{ trans('message.form.total_debit') }} ({{Session::get('currency_symbol')}})</label>
+
+                                <div class="col-sm-7">
+                                    <label class="col-sm-1 control-label" for="inputEmail3" style="float: left">{{number_format(abs($total_debit),2,'.',',')}}</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="inputEmail3">{{ trans('message.form.total_credit') }} ({{Session::get('currency_symbol')}})</label>
+
+                                <div class="col-sm-7">
+                                    <label class="col-sm-1 control-label" for="inputEmail3" style="float: left">{{number_format(abs($total_credit),2,'.',',')}}</label>
+                                </div>
+                            </div>
+
                           <div class="form-group">
                             <label class="col-sm-4 control-label" for="inputEmail3">{{ trans('message.form.status') }}</label>
 
@@ -94,6 +111,9 @@
                                @endif
                             </div>
                           </div>
+
+
+
                         </div>
                       </form>
               </div>
@@ -150,7 +170,7 @@
                     </tr>
                    @endforeach
                    @endif
-                    </tfoot>
+                    </tbody>
                   </table>
 
                 </div>

@@ -102,25 +102,27 @@
               <td colspan="3" align="right"><strong>{{ trans('message.invoice.total') }}</stron></td><td align="right"><strong>{{Session::get('currency_symbol').number_format($sumInvoice,2,'.',',')}}</strong></td>
           </tbody>
         </table>
-        @elseif(empty($paymentsList))
-        <h5 class="text-center">{{ trans('message.invoice.no_payment') }}</h5>
-
-        <div class="btn-block-left-padding" style="margin-top:10px;">
-          <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
-        </div>
-
-        @else
 
           <?php
-          $totalDueAmount = getTotalPaidAmountByOrder($orderInfo->reference,$orderInfo->order_no);
+            $totalDueAmount = getTotalPaidAmountByOrder($orderInfo->reference,$orderInfo->order_no);
           ?>
           @if($totalDueAmount>0)
-            <div class="btn-block-left-padding" style="margin-top:10px;">
-              <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
-            </div>
+              <div class="btn-block-left-padding" style="margin-top:10px;">
+                <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
+              </div>
           @endif
 
-        @endif
+
+        @elseif(empty($paymentsList))
+
+          <h5 class="text-center">{{ trans('message.invoice.no_payment') }}</h5>
+
+          <div class="btn-block-left-padding" style="margin-top:10px;">
+            <a href="{{URL::to('/')}}/payment/pay-all/{{$orderInfo->order_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
+          </div>
+
+          @endif
+
 
       </div>
     </div>

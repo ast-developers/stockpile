@@ -6,44 +6,68 @@
     <div class="row">
       <div class="col-md-12">
         <div class="box box-default">
+           <div class="box-header">
+              <h4 class="text-info ">Return and Exchange {{ trans('message.table.order_no')}} # <a href="{{url('order/view-order-details/'.$saleData->order_no)}}">{{$saleData->reference}}</a></h4>
+            </div>
         <!-- /.box-header -->
         <div class="box-body">
-        <form action="{{url('order/save')}}" method="POST" id="salesForm">  
+
+        <form action="{{url('order/returnUpdate')}}" method="POST" id="salesForm">
         <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
+        <input type="hidden" value="{{$saleData->order_no}}" name="order_no" id="order_no">
+        <input type="hidden" value="{{$saleData->reference}}" id="reference">
         <div class="row">
-            
             <div class="col-md-3">
-              <!-- /.form-group -->
               <div class="form-group">
-                <label for="exampleInputEmail1">{{ trans('message.form.customer') }}<span class="text-danger"> *</span></label>
-                <select class="form-control select2" name="debtor_no" id="customer">
+                <label for="exampleInputEmail1">{{ trans('message.form.customer') }}</label>
+                <select class="form-control select2" name="debtor_no" id="customer" <?= !empty($invoicedItem) ? 'disabled' : ''?>>
                 <option value="">{{ trans('message.form.select_one') }}</option>
                 @foreach($customerData as $data)
-                  <option value="{{$data->debtor_no}}">{{$data->name}}</option>
+                  <option value="{{$data->debtor_no}}" <?= ($data->debtor_no == $saleData->debtor_no) ? 'selected' : ''?> >{{$data->name}}</option>
                 @endforeach
                 </select>
+
+                @if(!empty($invoicedItem))
+                  <input type="hidden" value="{{$saleData->debtor_no}}" name="debtor_no">
+                @endif
+
               </div>
-              <!-- /.form-group -->
             </div>
             <div class="col-md-3">
               <!-- /.form-group -->
               <div class="form-group">
                 <label for="exampleInputEmail1">{{ trans('message.form.customer_branch') }}</label>
-                <select class="form-control select2" name="branch_id" id="branch">
+                <select class="form-control select2" name="branch_id" id="branch" <?= !empty($invoicedItem) ? 'disabled' : ''?>>
+                <option value="">{{ trans('message.form.select_one') }}</option>
+                @if(!empty($branchs))
+                  @foreach($branchs as $branch)
+                  <option value="{{$branch->branch_code}}" <?= ($branch->branch_code == $saleData->branch_id ? 'selected':'')?>>{{$branch->br_name}}</option>
+                  @endforeach
+                @endif
                 </select>
+                @if(!empty($invoicedItem))
+                  <input type="hidden" value="{{$saleData->branch_id}}" name="branch_id">
+                @endif
+
               </div>
               <!-- /.form-group -->
-            </div>            
+            </div>              
 
             <div class="col-md-3">
               <div class="form-group">
                   <label for="exampleInputEmail1">{{ trans('message.form.from_location') }}</label>
-                     <select class="form-control select2" name="from_stk_loc" id="loc">
-                   
+                    <select class="form-control select2" name="from_stk_loc" id="loc" <?= !empty($invoicedItem) ? 'disabled' : ''?>>
+                    
                     @foreach($locData as $data)
-                      <option value="{{$data->loc_code}}" <?= ($data->inactive =="1" ? 'selected':'')?>>{{$data->location_name}}</option>
+                      <option value="{{$data->loc_code}}" <?= ($data->loc_code == $saleData->from_stk_loc ? 'selected':'')?>>{{$data->location_name}}</option>
                     @endforeach
+                    
                     </select>
+
+                @if(!empty($invoicedItem))
+                  <input type="hidden" value="{{$saleData->from_stk_loc}}" name="from_stk_loc">
+                @endif
+
               </div>
             </div>
 
@@ -54,56 +78,62 @@
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <input class="form-control" id="datepicker" type="text" name="ord_date">
+                  <input readonly class="form-control" id="datepickers" type="text" name="ord_date" value="<?= isset($saleData->ord_date) ? formatDate($saleData->ord_date) :'' ?>">
                 </div>
                 <!-- /.input group -->
               </div>
             </div>
-        </div>
-
-        <div class="row">
             <div class="col-md-3">
               <div class="form-group">
                   <label for="exampleInputEmail1">{{ trans('message.extra_text.payment_method') }}</label>
-                     <select class="form-control select2" name="payment_id">
-                    
+                     <select class="form-control select2" name="payment_id" <?= !empty($invoicedItem) ? 'disabled' : ''?>>
+                   
                     @foreach($payments as $payment)
-                      <option value="{{$payment->id}}" <?= ($payment->defaults =="1" ? 'selected':'')?>>{{$payment->name}}</option>
+                      <option value="{{$payment->id}}" <?= ($payment->id == $saleData->payment_id) ? 'selected' : ''?>>{{$payment->name}}</option>
                     @endforeach
                     </select>
+                @if(!empty($invoicedItem))
+                  <input type="hidden" value="{{$saleData->payment_id}}" name="payment_id">
+                @endif
               </div>
             </div>
+
             <div class="col-md-3">
               <div class="form-group">
                   <label for="exampleInputEmail1">{{ trans('message.form.sales_type') }}</label>
                      <select class="form-control select2" name="sales_type" id="sales_type_id">
+                   
                     @foreach($salesType as $key=>$saleType)
-                      <option value="{{$saleType->id}}" <?= ($saleType->defaults== 1 )?'selected':''?>>{{$saleType->sales_type}}</option>
+                      <option value="{{$saleType->id}}" <?= ($saleType->id== 1 )?'selected':''?>>{{$saleType->sales_type}}</option>
                     @endforeach
                     </select>
               </div>
             </div>
 
+
             <div class="col-md-3">
                 <div class="form-group">
                     <label for="exampleInputEmail1">{{ trans('message.table.delivery_price') }}</label>
-                    <input class="form-control delivery_price" id="delivery_price" type="text" name="delivery_price" value="0">
+                    <input class="form-control delivery_price" id="delivery_price" type="text" name="delivery_price" value="{{$saleData->delivery_price}}">
                 </div>
             </div>
 
-          <div class="col-md-3">
-            <div class="form-group">
-                <label for="exampleInputEmail1">{{ trans('message.table.reference') }}<span class="text-danger"> *</span></label>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                  <label for="exampleInputEmail1">{{ trans('message.table.reference') }}<span class="text-danger"> *</span></label>
+                  <?php
+                    $refArray = explode('-',$saleData->reference);
+                  ?>
                 <div class="input-group">
                    <div class="input-group-addon">SO-</div>
-                   <input id="reference_no" class="form-control" value="{{ sprintf("%04d", $order_count+1)}}" type="text">
+                   <input id="reference_no" class="form-control" value="<?= isset($refArray[1]) ? $refArray[1] :'' ?>" type="text" readonly>
                    <input type="hidden"  name="reference" id="reference_no_write" value="">
                 </div>
-                <span id="errMsg" class="text-danger"></span>
+              </div>
+              <span id="errMsg" class="text-danger"></span>
             </div>
-          </div>   
         </div>
-
 
         <div class="row">
 
@@ -111,8 +141,8 @@
                 <div class="form-group">
                     <label for="exampleInputEmail1">{{ trans('message.table.discount_type') }}</label>
                     <select class="form-control select2" name="discount_type" id="discount_type">
-                        <option value="1">Per Item</option>
-                        <option value="2">Per Order</option>
+                        <option value="1" {{($saleData->discount_type==1) ? 'selected=selected' : ''}}>Per Item</option>
+                        <option value="2" {{($saleData->discount_type==2) ? 'selected=selected' : ''}}>Per Order</option>
                     </select>
                 </div>
             </div>
@@ -131,7 +161,6 @@
                 <li>No record found!</li>
                 </ul>
 
-
               </div>
             </div>
         </div>
@@ -146,7 +175,7 @@
               <!-- /.box-header -->
               <div class="box-body no-padding">
                 <div class="table-responsive">
-                <table class="table table-bordered" id="purchaseInvoice">
+                <table class="table table-bordered" id="salesInvoice">
                   <tbody>
 
                   <tr class="tbl_header_color dynamicRows">
@@ -159,18 +188,64 @@
                     <th width="10%" class="text-center">{{ trans('message.table.amount') }}({{Session::get('currency_symbol')}})</th>
                     <th width="5%"  class="text-center">{{ trans('message.table.action') }}</th>
                   </tr>
+                  <?php
+                    $taxTotal = 0;
+                    $totalItemQuantity = 0;
+                  ?>
+                  @if(count($invoiceData)>0)
+                    @foreach($invoiceData as $result)
+                        <?php
+                          if(in_array($result->stock_id, $invoicedItem)){
+                            $deleteBtn = 'deleteBtn';
+                          }else{
+                            $deleteBtn = '';
+                          }
 
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="0" max="100" min="0" readonly></td></tr>
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee"></strong></td></tr>
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.invoice.totalTax') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="taxTotal"></strong></td></tr>
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='number' name="total" class="form-control" id = "grandTotal" readonly></td></tr>
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.downpayment') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="downpayment" class="form-control" id="downpayment" value="0" min="0"></td></tr>
+                            $priceAmount = ($result->quantity*$result->unit_price);
+                            $discount = ($priceAmount*$result->discount_percent)/100;
+                            $newPrice = ($priceAmount-$discount);
+                            $tax = ($newPrice*$result->tax_rate/100);
+
+                            $totalItemQuantity+=$result->quantity;
+
+                            $taxTotal += $tax;
+                        ?>
+                        <tr id="rowid{{$result->item_id}}">
+                          <td class="text-center">{{$result->description}}<input type="hidden" name="description[]" value="{{$result->description}}"><input type="hidden" name="stock_id[]" value="{{$result->stock_id}}"></td>
+                          <td><input class="form-control text-center no_units" min="0" data-id="{{$result->item_id}}" data-rate="{{$result->unit_price}}" id="qty_{{$result->item_id}}" name="item_quantity[]" value="{{$result->quantity}}" type="text"><input name="item_id[]" value="{{$result->item_id}}" type="hidden"></td>
+                          <td class="text-center"><input min="0" class="form-control text-center unitprice" name="unit_price[]" data-id="{{$result->item_id}}" id="rate_id_{{$result->item_id}}" value="{{$result->unit_price}}" type="text"></td>
+                          <td class="text-center">
+                            <select class="form-control taxList" name="tax_id[]">
+                            @foreach($tax_types as $item)
+                              <option value="{{$item->id}}" taxrate="{{$item->tax_rate}}" <?= ($item->id == $result->tax_type_id ? 'selected':'')?>>{{$item->name}}({{$item->tax_rate}})</option>
+                            @endforeach
+                            </select>
+                          </td>
+                          <td class="text-center taxAmount">{{$tax}}</td>
+                          <td class="text-center"><input class="form-control text-center discount" name="discount[]" data-input-id="{{$result->item_id}}" id="discount_id_{{$result->item_id}}" max="100" min="0" type="text" value="{{$result->discount_percent}}" {{($saleData->discount_type==2) ? 'readonly' : ''}}></td>
+
+                          <td><input amount-id="{{$result->item_id}}" class="form-control text-center amount" id="amount_{{$result->item_id}}" value="{{$newPrice}}" name="item_price[]" readonly type="text"></td>
+                          <td class="text-center"><button id="{{$result->item_id}}" class="btn btn-xs btn-danger delete_item {{$deleteBtn}}"><i class="glyphicon glyphicon-trash"></i></button></td>
+                        </tr>
+                  <?php
+                    $stack[] = $result->item_id;
+                  ?>
+                    @endforeach
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="{{$saleData->discount_percent}}" max="100" min="0" {{($saleData->discount_type==1) ? 'readonly' : ''}}></td></tr>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee">{{$saleData->delivery_price}}</strong></td></tr>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.invoice.totalTax') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="taxTotal">{{$taxTotal}}</strong></td></tr>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="total" class="form-control" id = "grandTotal" value="{{ $saleData->total }}" readonly></td></tr>
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.downpayment') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="downpayment" class="form-control" id="downpayment" value="{{($saleData->debit_amount > 0) ? $saleData->paid_amount : 0}}" min="0"></td></tr>
+                  @endif
+
+                  <!-- To get total items quantity -->
+                  <input type="hidden" name="itemTotalQuantity" id="itemTotalQuantity" value="{{$totalItemQuantity}}">
+
                   </tbody>
                 </table>
                 </div>
                 <br><br>
-                
               </div>
             </div>
               <!-- /.box-body -->
@@ -180,13 +255,19 @@
                     <textarea placeholder="{{ trans('message.table.description') }} ..." rows="3" class="form-control" name="comments"></textarea>
                 </div>
                 <a href="{{url('/order/list')}}" class="btn btn-info btn-flat">{{ trans('message.form.cancel') }}</a>
-                <button type="submit" class="btn btn-primary btn-flat pull-right" id="btnSubmit">{{ trans('message.form.submit') }}</button>
+                <button id="btnSubmit" type="submit" class="btn btn-primary btn-flat pull-right">{{ trans('message.form.submit') }}</button>
               </div>
         </div>
         </form>
+            <!-- /.col -->
+            
+            <!-- /.col -->
       </div>
           <!-- /.row -->
     </div>
+        <!-- /.box-body -->
+      <!-- /.box -->
+
     </section>
 @endsection
 @section('js')
@@ -203,7 +284,7 @@ $(function() {
     })
 });
 
-    var taxOptionList = "{!! $tax_type !!}";
+     var taxOptionList = "{!! $tax_type_new !!}";
     $(document).ready(function(){
       var refNo ='SO-'+$("#reference_no").val();
       $("#reference_no_write").val(refNo);
@@ -223,20 +304,10 @@ $(function() {
       });
     });
 
-
     $(document).on('keyup', '#reference_no', function () {
-        var val = $(this).val();
-
-        if(val == null || val == ''){
-         $("#errMsg").html("{{ trans('message.invoice.exist') }}");
-          $('#btnSubmit').attr('disabled', 'disabled');
-          return;
-         }else{
-          $('#btnSubmit').removeAttr('disabled');
-         }
-
         var ref = 'SO-'+$(this).val();
         $("#reference_no_write").val(ref);
+      // Check Reference no if available
       $.ajax({
         method: "POST",
         url: SITE_URL+"/sales/reference-validation",
@@ -252,6 +323,7 @@ $(function() {
         });
     });
 
+
     function in_array(search, array)
     {
       for (i = 0; i < array.length; i++)
@@ -266,7 +338,9 @@ $(function() {
 
     $(function () {
         //Initialize Select2 Elements
-        $(".select2").select2({});
+        $(".select2").select2({
+
+        });
 
         //Date picker
         $('#datepicker').datepicker({
@@ -277,12 +351,12 @@ $(function() {
 
         $('.ref').val(Math.floor((Math.random() * 100) + 1));
        
-         $('#datepicker').datepicker('update', new Date());
     })
 
     var stack = [];
-    var token = $("#token").val();
+    var stack = <?php echo json_encode($stack); ?>;
 
+    var token = $("#token").val();
     $( "#search" ).autocomplete({
         source: function(request, response) {
             $.ajax({
@@ -327,20 +401,20 @@ $(function() {
               if(!in_array(e.id, stack))
               {
                 stack.push(e.id);
-                var taxAmount = (e.price*e.tax_rate)/100;
+               var taxAmount = (e.price*e.tax_rate)/100;
                 var new_row = '<tr id="rowid'+e.id+'">'+
-                          '<td class="text-center">'+ e.value +'<input type="hidden" name="stock_id[]" value="'+e.stock_id+'"><input type="hidden" name="description[]" value="'+e.value+'"></td>'+
-                          '<td><input class="form-control text-center no_units" min="0" data-id="'+e.id+'" data-rate="'+ e.price +'" type="text" id="qty_'+e.id+'" name="item_quantity[]" value="1"><input type="hidden" name="item_id[]" value="'+e.id+'"></td>'+
-                          '<td class="text-center"><input min="0"  type="text" class="form-control text-center unitprice" name="unit_price[]" data-id = "'+e.id+'" id="rate_id_'+e.id+'" value="'+ e.price +'"></td>'+
+                          '<td class="text-center">'+ e.value +'<input type="hidden" name="description_new[]" value="'+e.value+'"><input type="hidden" name="stock_id_new[]" value="'+e.stock_id+'"></td>'+
+                          '<td> <input class="form-control text-center no_units" min="0" data-id="'+e.id+'" data-rate="'+ e.price +'" type="text" id="qty_'+e.id+'" name="item_quantity_new[]" value="1"><input type="hidden" name="item_id_new[]" value="'+e.id+'"></td>'+
+                          '<td class="text-center"><input min="0"  type="text" class="form-control text-center unitprice" name="unit_price_new[]" data-id = "'+e.id+'" id="rate_id_'+e.id+'" value="'+ e.price +'"></td>'+
                           '<td class="text-center">'+ taxOptionList +'</td>'+
                           '<td class="text-center taxAmount">'+ taxAmount +'</td>'+
-                          '<td class="text-center"><input type="text" class="form-control text-center discount" name="discount[]" data-input-id="'+e.id+'" id="discount_id_'+e.id+'" max="100" min="0" value="0"></td>'+
-                          '<td><input class="form-control text-center amount" type="text" amount-id = "'+e.id+'" id="amount_'+e.id+'" value="'+e.price+'" name="item_price[]" readonly></td>'+
+                          '<td class="text-center"><input type="text" class="form-control text-center discount" name="discount_new[]" data-input-id="'+e.id+'" id="discount_id_'+e.id+'" max="100" min="0" value="0"></td>'+
+                          '<td><input class="form-control text-center amount" type="text" amount-id = "'+e.id+'" id="amount_'+e.id+'" value="'+e.price+'" name="item_price_new[]" readonly></td>'+
                           '<td class="text-center"><button id="'+e.id+'" class="btn btn-xs btn-danger delete_item"><i class="glyphicon glyphicon-trash"></i></button></td>'+
                           '</tr>';
                 
                 $(new_row).insertAfter($('table tr.dynamicRows:last'));
-                // Calculate total tax
+
                 $(function() {
                     $("#rowid"+e.id+' .taxList').val(e.tax_id);
                 });
@@ -352,39 +426,51 @@ $(function() {
                 subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
                 $("#subTotal").html(subTotal);
 
-                //Get Delivery Fee
-                var delivery_fee = parseFloat($("#delivery_price").val());
+                  //Get Delivery Fee
+                  var delivery_fee = parseFloat($("#delivery_price").val());
                   if(isNaN(delivery_fee)){
                       delivery_fee = 0;
                   }
-                $("#deliveryFee").html(delivery_fee);
+                  $("#deliveryFee").html(delivery_fee);
 
-                //Calculate tax total
+                // Calculate Grand Total
                 var taxTotal = calculateTaxTotal();
                 $("#taxTotal").text(taxTotal);
-
-                //Calculate grand total
                 var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
 
-                if(parseFloat($("#grandTotal").val()) < 0){
-                    $("#downpayment").val(0);
-                    $("#downpayment").attr('readonly', true);
-                }else{
-                    $("#downpayment").attr('readonly', false);
-                }
+                  if(parseFloat($("#grandTotal").val()) < 0){
+                      $("#downpayment").val(0);
+                      $("#downpayment").attr('readonly', true);
+                  }else{
+                      $("#downpayment").attr('readonly', false);
+                  }
 
                 $('.tableInfo').show();
 
+
+                  /* Check the total items quantity and previuosly entered quantity
+                   * if previosly entered quantity != currently entered quantity then the user can not submit the new order
+                   **/
+                  var currentTotalQuantity = 0;
+                  var enteredQuantity = parseInt($("#itemTotalQuantity").val());
+
+                  $(".no_units").each(function(){
+                      currentTotalQuantity += parseInt($(this).val());
+                  });
+
+                  getTotalQuantity(currentTotalQuantity, enteredQuantity);
+
+
               } else {
+                 
                   $('#qty_'+e.id).val( function(i, oldval) {
                       return ++oldval;
                   });
-                  //console.log(oldval);
+                  
                   var q = $('#qty_'+e.id).val();
-                  $("#rate_id_"+e.id).val();
-                  r = parseFloat($("#rate_id_"+e.id).val());
-                
+                  var r = $("#rate_id_"+e.id).val();
+
                 $('#amount_'+e.id).val( function(i, amount) {
                     var result = q*r; 
                     var amountId = $(this).attr("amount-id");
@@ -402,6 +488,7 @@ $(function() {
                var taxRateValue = parseFloat( $("#rowid"+e.id+' .taxList').find(':selected').attr('taxrate'));
                var amountByRow = $('#amount_'+e.id).val(); 
                var taxByRow = amountByRow*taxRateValue/100;
+              
                $("#rowid"+e.id+" .taxAmount").text(taxByRow);
 
                 // Calculate subTotal
@@ -417,11 +504,9 @@ $(function() {
                   }
                   $("#deliveryFee").html(delivery_fee);
 
-
-                  // Calculate taxTotal
+                // Calculate taxTotal
                 var taxTotal = calculateTaxTotal();
                 $("#taxTotal").text(taxTotal);
-
                 // Calculate GrandTotal
                 var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
@@ -433,6 +518,19 @@ $(function() {
                       $("#downpayment").attr('readonly', false);
                   }
 
+
+                  /* Check the total items quantity and previuosly entered quantity
+                   * if previosly entered quantity != currently entered quantity then the user can not submit the new order
+                   **/
+                  var currentTotalQuantity = 0;
+                  var enteredQuantity = parseInt($("#itemTotalQuantity").val());
+
+                  $(".no_units").each(function(){
+                      currentTotalQuantity += parseInt($(this).val());
+                  });
+
+                  getTotalQuantity(currentTotalQuantity, enteredQuantity);
+
               }
               
               $(this).val('');
@@ -442,7 +540,6 @@ $(function() {
               $("#discount_type").change();
 
               return false;
-
           }
         },
         minLength: 1,
@@ -479,52 +576,77 @@ $(function() {
 
      // calculate amount with item quantity
     $(document).on('keyup', '.no_units', function(ev){
-      var id = $(this).attr("data-id");
-      var qty = parseInt($(this).val());
-      var token = $("#token").val();
-      var from_stk_loc = $("#loc").val();
-      // check item quantity in store location
-      $.ajax({
+        var id = $(this).attr("data-id");
+        var qty = parseInt($(this).val());
+        var order_no = $("#order_no").val();
+        var reference = $("#reference").val();
+        var token = $("#token").val();
+        var from_stk_loc = $("#loc").val();
+
+        if(isNaN(qty)){
+            qty = 0;
+        }
+
+        /* Check the total items quantity and previuosly entered quantity
+         * if previosly entered quantity != currently entered quantity then the user can not submit the new order
+         **/
+        var currentTotalQuantity = 0;
+        var enteredQuantity = parseInt($("#itemTotalQuantity").val());
+
+        $(".no_units").each(function(){
+            var perQty = $(this).val();
+            if(isNaN(perQty) || perQty==''){
+                perQty=0;
+            }
+            currentTotalQuantity += parseInt(perQty);
+        });
+
+        getTotalQuantity(currentTotalQuantity, enteredQuantity);
+      // check item quantity in store location after sale
+      /*$.ajax({
         method: "POST",
-        url: SITE_URL+"/sales/quantity-validation",
-        data: { "id": id, "location_id": from_stk_loc,'qty':qty,"_token":token }
+        url: SITE_URL+"/order/check-quantity-after-invoice",
+        data: { "id": id,'order_no':order_no,'reference':reference ,"location_id": from_stk_loc,'qty':qty,"_token":token }
       })
         .done(function( data ) {
           var data = jQuery.parseJSON(data);
+         
           if(data.status_no == 0){
-            $("#quantityMessage").html(data.message);
+            $("#quantityMessage").html('You can not decrease the item quantity.');
             $("#rowid"+id).addClass("insufficient");
-          }else{
+            $('#btnSubmit').attr('disabled', 'disabled');
+          }else if(data.status_no == 1){
+             $("#quantityMessage").html("");
             $("#rowid"+id).removeClass("insufficient");
             $("#quantityMessage").hide();
+            $('#btnSubmit').removeAttr('disabled');
           }
-        });
-
-
-      if(isNaN(qty)){
-          qty = 0;
-       }
+        });*/
        
-      var rate = $("#rate_id_"+id).val();
-      var price = calculatePrice(qty,rate);  
-
-      var discountRate = parseFloat($("#discount_id_"+id).val());     
-      if(isNaN(discountRate)){
-          discountRate = 0;
-       }
-      var discountPrice = calculateDiscountPrice(price,discountRate); 
-      $("#amount_"+id).val(discountPrice);
+        var rate = $("#rate_id_"+id).val();
       
-     var taxRateValue = parseFloat( $("#rowid"+id+' .taxList').find(':selected').attr('taxrate'));
-     var amountByRow = $('#amount_'+id).val(); 
-     var taxByRow = amountByRow*taxRateValue/100;
-     $("#rowid"+id+" .taxAmount").text(taxByRow);
+        var price = calculatePrice(qty,rate);
 
-      // Calculate subTotal
-      var subTotal = calculateSubTotal();
+        var discountRate = parseFloat($("#discount_id_"+id).val());
+        if(isNaN(discountRate)){
+            discountRate = 0;
+        }
+        var discountPrice = calculateDiscountPrice(price,discountRate);
+        $("#amount_"+id).val(discountPrice);
+
+
+        var taxRateValue = parseFloat( $("#rowid"+id+' .taxList').find(':selected').attr('taxrate'));
+        var amountByRow = $('#amount_'+id).val();
+        var taxByRow = amountByRow*taxRateValue/100;
+        $("#rowid"+id+" .taxAmount").text(taxByRow);
+        var taxTotal = calculateTaxTotal();
+        $("#taxTotal").text(taxTotal);
+
+        // Calculate subTotal
+        var subTotal = calculateSubTotal();
         var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
         subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
-      $("#subTotal").html(subTotal);
+        $("#subTotal").html(subTotal);
 
         //Get Delivery Fee
         var delivery_fee = parseFloat($("#delivery_price").val());
@@ -533,12 +655,9 @@ $(function() {
         }
         $("#deliveryFee").html(delivery_fee);
 
-      // Calculate taxTotal
-      var taxTotal = calculateTaxTotal();
-      $("#taxTotal").text(taxTotal);
-      // Calculate GrandTotal
-      var grandTotal = (subTotal + taxTotal + delivery_fee);
-      $("#grandTotal").val(grandTotal);
+        // Calculate GrandTotal
+        var grandTotal = (subTotal + taxTotal + delivery_fee);
+        $("#grandTotal").val(grandTotal);
 
         if(parseFloat($("#grandTotal").val()) < 0){
             $("#downpayment").val(0);
@@ -549,6 +668,22 @@ $(function() {
 
     });
 
+
+
+    function getTotalQuantity(currentTotalQuantity, enteredQuantity)
+    {
+        if(currentTotalQuantity < enteredQuantity){
+            $("#quantityMessage").html('Total of all item quantity must be atleast '+enteredQuantity);
+            //$("#rowid"+id).addClass("insufficient");
+            $('#btnSubmit').attr('disabled', 'disabled');
+        }else{
+            $("#quantityMessage").html("");
+            $('#btnSubmit').removeAttr('disabled');
+        }
+
+    }
+
+
      // calculate amount with discount
     $(document).on('keyup', '.discount', function(ev){
      
@@ -558,12 +693,11 @@ $(function() {
           discount = 0;
        }
      
-      
-      
       var id = $(this).attr("data-input-id");
       var qty = $("#qty_"+id).val();
       var rate = $("#rate_id_"+id).val();
       var discountRate = $("#discount_id_"+id).val();
+
       var price = calculatePrice(qty,rate); 
       var discountPrice = calculateDiscountPrice(price,discountRate);       
       $("#amount_"+id).val(discountPrice);
@@ -612,7 +746,6 @@ $(function() {
           unitprice = 0;
        }
      
-      
       var id = $(this).attr("data-id");
       var qty = $("#qty_"+id).val();
       var rate = $("#rate_id_"+id).val();
@@ -683,7 +816,6 @@ $(function() {
 
     });
 
-
     $(document).on('change', '.taxList', function(ev){
       var taxRateValue = $(this).find(':selected').attr('taxrate');
       var rowId = $(this).closest('tr').prop('id');
@@ -698,10 +830,8 @@ $(function() {
         var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
         subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
       $("#subTotal").html(subTotal);
-
         //Fetch delivery fee
         var deliveryFee = parseFloat($("#delivery_price").val());
-
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
       $("#taxTotal").text(taxTotal);
@@ -720,19 +850,19 @@ $(function() {
 
     // Delete item row
     $(document).ready(function(e){
-      $('#purchaseInvoice').on('click', '.delete_item', function() {
+      $('#salesInvoice').on('click', '.delete_item', function() {
             var v = $(this).attr("id");
             stack = jQuery.grep(stack, function(value) {
               return value != v;
             });
             
             $(this).closest("tr").remove();
-            
-           var taxRateValue = parseFloat( $("#rowid"+v+' .taxList').find(':selected').attr('taxrate'));
+
+            var taxRateValue = parseFloat( $("#rowid"+v+' .taxList').find(':selected').attr('taxrate'));
            var amountByRow = $('#amount_'+v).val(); 
            var taxByRow = amountByRow*taxRateValue/100;
            $("#rowid"+v+" .taxAmount").text(taxByRow);
-
+            
             var subTotal = calculateSubTotal();
             var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
             subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
@@ -740,22 +870,36 @@ $(function() {
 
           //Fetch delivery fee
           var deliveryFee = parseFloat($("#delivery_price").val());
-           
+
             var taxTotal = calculateTaxTotal();
             $("#taxTotal").text(taxTotal);
             // Calculate GrandTotal
             var grandTotal = (subTotal + taxTotal + deliveryFee);
             $("#grandTotal").val(grandTotal);
 
-              if(parseFloat($("#grandTotal").val()) < 0){
-                  $("#downpayment").val(0);
-                  $("#downpayment").attr('readonly', true);
-              }else{
-                  $("#downpayment").attr('readonly', false);
-              }
+          if(parseFloat($("#grandTotal").val()) < 0){
+              $("#downpayment").val(0);
+              $("#downpayment").attr('readonly', true);
+          }else{
+              $("#downpayment").attr('readonly', false);
+          }
+
+          /* Check the total items quantity and previuosly entered quantity
+           * if previosly entered quantity != currently entered quantity then the user can not submit the new order
+           **/
+          var currentTotalQuantity = 0;
+          var enteredQuantity = parseInt($("#itemTotalQuantity").val());
+
+          $(".no_units").each(function(){
+              currentTotalQuantity += parseInt($(this).val());
+          });
+
+          getTotalQuantity(currentTotalQuantity, enteredQuantity);
 
         });
+
     });
+
 
     //Discount type drop down on change
     $(document).on('change', '#discount_type', function(){
@@ -773,6 +917,7 @@ $(function() {
             $('#perOrderDiscount').attr('readonly', true);
         }
     });
+
 
     //per order discount key up event
     $(document).on('keyup', '#perOrderDiscount', function(){
@@ -799,7 +944,6 @@ $(function() {
         }
 
     });
-
       
       /**
       * Calcualte Total tax
@@ -824,7 +968,6 @@ $(function() {
         });
         return subTotal;
       }
-
       /**
       * Calcualte price
       *@return price
@@ -839,12 +982,14 @@ $(function() {
        return tax;
       }   
 
+
       // calculate discont amount
       function calculateDiscountPrice(p,d){
         var discount = [(d*p)/100];
         var result = (p-discount); 
         return result;
       }
+
 
     //Calculate disccount for per order
     function calculatePerOrderDiscount(total, discount){
@@ -863,14 +1008,15 @@ $(function() {
     }
 
 // Item form validation
+
     jQuery.validator.addMethod("comparison", function (value, element) {
-        var pcompra = parseFloat($("#grandTotal").val());
         if(pcompra > 0) {
             return this.optional(element) || parseFloat(value) <= pcompra;
         }else{
             return this.optional(element) || parseFloat(value) == 0;
         }
     });
+
     $('#salesForm').validate({
         rules: {
             debtor_no: {
@@ -909,6 +1055,24 @@ $(function() {
 
         }
     });
+
+    $(document).ready(function(){
+        var subTotal = calculateSubTotal();
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
+        subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
+        $("#subTotal").text(subTotal);
+
+        var grandTotal = parseFloat($('#grandTotal').val());
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
+
+      });
 
     </script>
 @endsection

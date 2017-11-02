@@ -157,7 +157,14 @@ class PaymentController extends Controller
             ->get();
 
         $data['invoiceQty'] = DB::table('stock_moves')->where(['order_no' => $data['paymentInfo']->order_reference_id, 'trans_type' => SALESINVOICE])->sum('qty');
+        if(empty($data['invoiceQty'])){
+            $data['invoiceQty'] = DB::table('stock_moves')->where(['order_no' => $data['paymentInfo']->order_no, 'trans_type' => SALESINVOICE])->sum('qty');
+        }
+
         $data['orderQty']   = DB::table('sales_order_details')->where(['order_no' => $data['paymentInfo']->order_reference_id, 'trans_type' => SALESORDER])->sum('quantity');
+        if(empty($data['orderQty'])){
+            $data['orderQty']   = DB::table('sales_order_details')->where(['order_no' => $data['paymentInfo']->order_no, 'trans_type' => SALESORDER])->sum('quantity');
+        }
 
         $data['paymentsList']   = DB::table('payment_history')
             ->where(['order_reference' => $data['paymentInfo']->order_reference])
@@ -265,22 +272,40 @@ class PaymentController extends Controller
     /**
      * Pay all amount
      */
-    public function payAllAmount($order_no)
+    public function payAllAmount($order_no, $downpayment='', $editSalesOrder='')
     {
         //Fetch data after generating invoice
-        $allInvoiced = DB::table('sales_orders')->where('order_reference_id', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount')->get();
+        $allInvoiced = DB::table('sales_orders')->where('order_reference_id', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount', 'debit_amount', 'credit_amount')->get();
 
 
         //Fetch data without generating invoice
         if (empty($allInvoiced)) {
-            $allInvoiced = DB::table('sales_orders')->where('order_no', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount')->get();
+            $allInvoiced = DB::table('sales_orders')->where('order_no', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount', 'debit_amount', 'credit_amount')->get();
         }
 
         //d($allInvoiced,1);
         foreach ($allInvoiced as $key => $value) {
             $amount = ($value->invoiced_amount - $value->paid_amount);
-            // d($amount,1);
-            DB::table('sales_orders')->where('order_no', $value->inv_no)->update(['paid_amount' => $value->invoiced_amount]);
+            //Payment order already inserted while creating sales order
+            if(!empty($downpayment) && $downpayment>0){
+                $amount = $value->paid_amount;
+
+                //If records are already inserted into the payment table then delete previous records while edit the sales order
+                if($editSalesOrder) {
+                    DB::table('payment_history')->where('order_reference', $value->reference)->delete();
+                }
+
+            }else{
+                DB::table('sales_orders')->where('order_no', $value->inv_no)->update(['paid_amount' => $value->invoiced_amount]);
+            }
+
+            //Check if debit amount is available for the order then update the final debit
+            if($value->debit_amount > 0){
+                $finalDebit = $value->debit_amount - $amount;
+                DB::table('sales_orders')->where('reference', $value->reference)->update(['debit_amount' => $finalDebit]);
+            }
+
+
             if (abs($amount) >= 0) {
                 $payment[$key]['invoice_reference'] = (string)$value->reference;
                 $payment[$key]['order_reference']   = ($value->order_reference) ? (string)$value->order_reference : (string)$value->reference;
@@ -293,7 +318,10 @@ class PaymentController extends Controller
                 //d($payment,1);
                 $payments = DB::table('payment_history')->insertGetId($payment[$key]);
             }
+
         }
+
+
         \Session::flash('success', trans('message.extra_text.payment_success'));
         return redirect()->intended('order/view-order-details/' . $order_no);
 

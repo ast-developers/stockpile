@@ -32,7 +32,19 @@
                     </div>
                     <div class="col-md-8">
                       <div class="btn-group pull-right">
-                        <button title="Email" type="button" class="btn btn-default btn-flat" data-toggle="modal" data-target="#emailOrder">{{ trans('message.extra_text.email') }}</button>
+
+                          <?php
+                            if(empty($invoiceList) && empty($paymentsList) && empty($shipmentList)){
+                                $orderReturnUrl = URL::to('/').'/order/return/'.$saleData->order_no;
+                                $disableClass = "";
+                            }else{
+                                $orderReturnUrl = "javascript:void(0);";
+                                $disableClass = "disabled";
+                            }
+                          ?>
+
+                          <a href="{{$orderReturnUrl}}" title="Order Return" class="btn btn-default btn-flat {{$disableClass}}">{{ trans('message.extra_text.order_return') }}</a>
+                          <button title="Email" type="button" class="btn btn-default btn-flat" data-toggle="modal" data-target="#emailOrder">{{ trans('message.extra_text.email') }}</button>
                         <a target="_blank" href="{{URL::to('/')}}/order/print/{{$saleData->order_no}}" title="Print" class="btn btn-default btn-flat">{{ trans('message.extra_text.print') }}</a>
                         <a target="_blank" href="{{URL::to('/')}}/order/pdf/{{$saleData->order_no}}" title="PDF" class="btn btn-default btn-flat">{{ trans('message.extra_text.pdf') }}</a>
                         @if(!empty(Session::get('order_edit')))
