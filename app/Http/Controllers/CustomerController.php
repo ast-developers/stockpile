@@ -131,6 +131,8 @@ class CustomerController extends Controller
         $data['cusBranchData'] = DB::table('cust_branch')->where('debtor_no',$id)->get();
         $data['saleTypeData'] = DB::table('sales_types')->get();
         $data['countries'] = DB::table('countries')->get();
+        $data['total_debit'] = $this->order->fetch_totalDebitForCustomer($id);
+        $data['total_credit'] = $this->order->fetch_totalCreditForCustomer($id);
         $data['status_tab'] = 'active';
      //   d($data['cusBranchData'],1);
         return view('admin.customer.customer_edit', $data);

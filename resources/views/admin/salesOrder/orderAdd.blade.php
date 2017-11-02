@@ -367,6 +367,13 @@ $(function() {
                 var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
 
+                if(parseFloat($("#grandTotal").val()) < 0){
+                    $("#downpayment").val(0);
+                    $("#downpayment").attr('readonly', true);
+                }else{
+                    $("#downpayment").attr('readonly', false);
+                }
+
                 $('.tableInfo').show();
 
               } else {
@@ -418,6 +425,13 @@ $(function() {
                 // Calculate GrandTotal
                 var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
+
+                  if(parseFloat($("#grandTotal").val()) < 0){
+                      $("#downpayment").val(0);
+                      $("#downpayment").attr('readonly', true);
+                  }else{
+                      $("#downpayment").attr('readonly', false);
+                  }
 
               }
               
@@ -526,6 +540,13 @@ $(function() {
       var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
     });
 
      // calculate amount with discount
@@ -572,6 +593,13 @@ $(function() {
       var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
     });
 
 
@@ -613,6 +641,13 @@ $(function() {
       var grandTotal = (subTotal + taxTotal + deliveryFee);
       $("#grandTotal").val(grandTotal);
 
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
     });
 
 
@@ -638,6 +673,13 @@ $(function() {
         // Calculate GrandTotal
         var grandTotal = (subTotal + taxTotal + deliveryFee);
         $("#grandTotal").val(grandTotal);
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
 
     });
 
@@ -666,6 +708,13 @@ $(function() {
       // Calculate GrandTotal
       var grandTotal = (subTotal + taxTotal + deliveryFee);
       $("#grandTotal").val(grandTotal);
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
 
     });
 
@@ -697,6 +746,13 @@ $(function() {
             // Calculate GrandTotal
             var grandTotal = (subTotal + taxTotal + deliveryFee);
             $("#grandTotal").val(grandTotal);
+
+              if(parseFloat($("#grandTotal").val()) < 0){
+                  $("#downpayment").val(0);
+                  $("#downpayment").attr('readonly', true);
+              }else{
+                  $("#downpayment").attr('readonly', false);
+              }
 
         });
     });
@@ -734,6 +790,13 @@ $(function() {
         // Calculate GrandTotal
         var grandTotal = (subTotal + taxTotal + deliveryFee);
         $("#grandTotal").val(grandTotal);
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
 
     });
 
@@ -802,7 +865,11 @@ $(function() {
 // Item form validation
     jQuery.validator.addMethod("comparison", function (value, element) {
         var pcompra = parseFloat($("#grandTotal").val());
-        return this.optional(element) || parseFloat(value) <= pcompra;
+        if(pcompra > 0) {
+            return this.optional(element) || parseFloat(value) <= pcompra;
+        }else{
+            return this.optional(element) || parseFloat(value) == 0;
+        }
     });
     $('#salesForm').validate({
         rules: {

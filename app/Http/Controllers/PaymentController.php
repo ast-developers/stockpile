@@ -272,52 +272,38 @@ class PaymentController extends Controller
     /**
      * Pay all amount
      */
-    public function payAllAmount($order_no, $downpayment='')
+    public function payAllAmount($order_no, $downpayment='', $editSalesOrder='')
     {
         //Fetch data after generating invoice
-        $allInvoiced = DB::table('sales_orders')->where('order_reference_id', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount')->get();
+        $allInvoiced = DB::table('sales_orders')->where('order_reference_id', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount', 'debit_amount', 'credit_amount')->get();
 
 
         //Fetch data without generating invoice
         if (empty($allInvoiced)) {
-            $allInvoiced = DB::table('sales_orders')->where('order_no', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount')->get();
+            $allInvoiced = DB::table('sales_orders')->where('order_no', $order_no)->select('order_no as inv_no', 'order_reference', 'reference', 'debtor_no as customer_id', 'payment_id', 'total as invoiced_amount', 'paid_amount', 'debit_amount', 'credit_amount')->get();
         }
 
         //d($allInvoiced,1);
         foreach ($allInvoiced as $key => $value) {
             $amount = ($value->invoiced_amount - $value->paid_amount);
             //Payment order already inserted while creating sales order
-            if(!empty($downpayment)){
+            if(!empty($downpayment) && $downpayment>0){
                 $amount = $value->paid_amount;
+
+                //If records are already inserted into the payment table then delete previous records while edit the sales order
+                if($editSalesOrder) {
+                    DB::table('payment_history')->where('order_reference', $value->reference)->delete();
+                }
+
             }else{
                 DB::table('sales_orders')->where('order_no', $value->inv_no)->update(['paid_amount' => $value->invoiced_amount]);
             }
 
-            //Check if total order amount is less than amount paid
-            /*$totalAmountPaid = fetchTotalAmountPaidForOrder($value->reference);
-            $finalAmountPaid = $totalAmountPaid + $amount;
-            echo $finalAmountPaid." ".$value->invoiced_amount;*/
-            /*
-                For an order -
-                  Total payment history amount + Current paying amount = Total order amount
-                  then minus the amount from the total debit for an customer
-            */
-            /*if($finalAmountPaid == $value->invoiced_amount){
-                echo "in if";
-                //Update customer total debit value after downpayment
-                $customerData = fetchCustomerDebit($value->customer_id);
-                $currentDebit = $customerData[0]->total_debit;
-                $currentCredit = $customerData[0]->total_credit;
-
-                if($currentDebit>0) {
-                    $finalDebit = $currentDebit - $amount;
-                    DB::table('debtors_master')->where('debtor_no', $value->customer_id)->update(['total_debit' => $finalDebit]);
-                }
+            //Check if debit amount is available for the order then update the final debit
+            if($value->debit_amount > 0){
+                $finalDebit = $value->debit_amount - $amount;
+                DB::table('sales_orders')->where('reference', $value->reference)->update(['debit_amount' => $finalDebit]);
             }
-
-            echo "in else"; die;*/
-
-            /*  Customer table update ends */
 
 
             if (abs($amount) >= 0) {

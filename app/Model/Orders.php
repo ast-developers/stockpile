@@ -382,4 +382,18 @@ class Orders extends Model
 
     }
 
+
+    public function fetch_totalDebitForCustomer($id){
+        $data = DB::select(DB::raw("SELECT SUM(debit_amount) as total_debit FROM sales_orders where debtor_no='$id'"));
+        return $data[0]->total_debit;
+
+    }
+
+
+    public function fetch_totalCreditForCustomer($id){
+        $data = DB::select(DB::raw("SELECT SUM(credit_amount) as total_credit FROM sales_orders where debtor_no='$id'"));
+        return $data[0]->total_credit;
+
+    }
+
 }
