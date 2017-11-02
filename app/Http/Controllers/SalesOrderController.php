@@ -8,13 +8,14 @@ use App\Model\Orders;
 use App\Http\Requests;
 use App\Model\Sales;
 use App\Model\Shipment;
+use App\Http\Controllers\PaymentController;
 use DB;
 use PDF;
 use Session;
 
 class SalesOrderController extends Controller
 {
-    public function __construct(Orders $orders, Sales $sales, Shipment $shipment, EmailController $email)
+    public function __construct(Orders $orders, Sales $sales, Shipment $shipment, EmailController $email, PaymentController $paymentController)
     {
         /**
          * Set the database connection. reference app\helper.php
@@ -24,6 +25,7 @@ class SalesOrderController extends Controller
         $this->sale     = $sales;
         $this->shipment = $shipment;
         $this->email    = $email;
+        $this->paymentController = $paymentController;
     }
 
     /**
@@ -158,9 +160,26 @@ class SalesOrderController extends Controller
         $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['discount_type']        = $request->discount_type;
         $salesOrder['discount_percent']        = $request->perOrderDiscount;
+        $salesOrder['paid_amount']        = $request->downpayment;
         $salesOrder['created_at']   = date('Y-m-d H:i:s');
-        // d($salesOrder,1);
+
         $salesOrderId = \DB::table('sales_orders')->insertGetId($salesOrder);
+
+        //Insert the record into the payment table while select downpayment in creating sales order
+        if($request->downpayment > 0) {
+            $this->paymentController->payAllAmount($salesOrderId, $request->downpayment);
+            $salesOrderDebit['debit_amount'] = $request->total - $request->downpayment;
+            //;$currentCredit = $customerData[0]->total_credit;
+            //Update sales order table
+            DB::table('sales_orders')->where('order_no', $salesOrderId)->update($salesOrderDebit);
+        }
+
+        //Update sales order when grand total is a negative value and it should treated as credit value
+        if($request->total < 0){
+            $salesOrderCredit['credit_amount'] = abs($request->total);
+            DB::table('sales_orders')->where('order_no', $salesOrderId)->update($salesOrderCredit);
+        }
+
 
 
         for ($i = 0; $i < count($itemIds); $i++) {
@@ -263,10 +282,28 @@ class SalesOrderController extends Controller
         $salesOrder['delivery_price']        = $request->delivery_price;
         $salesOrder['discount_type']        = $request->discount_type;
         $salesOrder['discount_percent']        = $request->perOrderDiscount;
+        $salesOrder['paid_amount']        = $request->downpayment;
         $salesOrder['updated_at']   = date('Y-m-d H:i:s');
         //d($salesOrder,1);
 
         DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrder);
+
+        //Insert the record into the payment table while select downpayment in creating sales order
+        if($request->downpayment > 0) {
+            $this->paymentController->payAllAmount($order_no, $request->downpayment, true);
+            $salesOrderDebit['debit_amount'] = $request->total - $request->downpayment;
+            //;$currentCredit = $customerData[0]->total_credit;
+            //Update sales order table
+            DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrderDebit);
+        }
+
+        //Update sales order when grand total is a negative value and it should treated as credit value
+        if($request->total < 0){
+            $salesOrderCredit['credit_amount'] = abs($request->total);
+            DB::table('sales_orders')->where('order_no', $order_no)->update($salesOrderCredit);
+        }
+
+
         if (count($itemQty) > 0) {
             $invoiceData = $this->order->getSalseInvoiceByID($order_no);
             $invoiceData = objectToArray($invoiceData);

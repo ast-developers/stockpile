@@ -164,7 +164,8 @@
                   <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
                   <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.delivery_price') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="deliveryFee"></strong></td></tr>
                   <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.invoice.totalTax') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="taxTotal"></strong></td></tr>
-                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="total" class="form-control" id = "grandTotal" readonly></td></tr>
+                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='number' name="total" class="form-control" id = "grandTotal" readonly></td></tr>
+                  <tr class="tableInfo"><td colspan="6" align="right"><strong>{{ trans('message.table.downpayment') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="downpayment" class="form-control" id="downpayment" value="0" min="0"></td></tr>
                   </tbody>
                 </table>
                 </div>
@@ -366,6 +367,13 @@ $(function() {
                 var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
 
+                if(parseFloat($("#grandTotal").val()) < 0){
+                    $("#downpayment").val(0);
+                    $("#downpayment").attr('readonly', true);
+                }else{
+                    $("#downpayment").attr('readonly', false);
+                }
+
                 $('.tableInfo').show();
 
               } else {
@@ -417,6 +425,13 @@ $(function() {
                 // Calculate GrandTotal
                 var grandTotal = (subTotal + taxTotal + delivery_fee);
                 $("#grandTotal").val(grandTotal);
+
+                  if(parseFloat($("#grandTotal").val()) < 0){
+                      $("#downpayment").val(0);
+                      $("#downpayment").attr('readonly', true);
+                  }else{
+                      $("#downpayment").attr('readonly', false);
+                  }
 
               }
               
@@ -525,6 +540,13 @@ $(function() {
       var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
     });
 
      // calculate amount with discount
@@ -571,6 +593,13 @@ $(function() {
       var grandTotal = (subTotal + taxTotal + delivery_fee);
       $("#grandTotal").val(grandTotal);
 
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
     });
 
 
@@ -612,6 +641,13 @@ $(function() {
       var grandTotal = (subTotal + taxTotal + deliveryFee);
       $("#grandTotal").val(grandTotal);
 
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
+
     });
 
 
@@ -637,6 +673,13 @@ $(function() {
         // Calculate GrandTotal
         var grandTotal = (subTotal + taxTotal + deliveryFee);
         $("#grandTotal").val(grandTotal);
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
 
     });
 
@@ -665,6 +708,13 @@ $(function() {
       // Calculate GrandTotal
       var grandTotal = (subTotal + taxTotal + deliveryFee);
       $("#grandTotal").val(grandTotal);
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
 
     });
 
@@ -696,6 +746,13 @@ $(function() {
             // Calculate GrandTotal
             var grandTotal = (subTotal + taxTotal + deliveryFee);
             $("#grandTotal").val(grandTotal);
+
+              if(parseFloat($("#grandTotal").val()) < 0){
+                  $("#downpayment").val(0);
+                  $("#downpayment").attr('readonly', true);
+              }else{
+                  $("#downpayment").attr('readonly', false);
+              }
 
         });
     });
@@ -733,6 +790,13 @@ $(function() {
         // Calculate GrandTotal
         var grandTotal = (subTotal + taxTotal + deliveryFee);
         $("#grandTotal").val(grandTotal);
+
+        if(parseFloat($("#grandTotal").val()) < 0){
+            $("#downpayment").val(0);
+            $("#downpayment").attr('readonly', true);
+        }else{
+            $("#downpayment").attr('readonly', false);
+        }
 
     });
 
@@ -799,6 +863,14 @@ $(function() {
     }
 
 // Item form validation
+    jQuery.validator.addMethod("comparison", function (value, element) {
+        var pcompra = parseFloat($("#grandTotal").val());
+        if(pcompra > 0) {
+            return this.optional(element) || parseFloat(value) <= pcompra;
+        }else{
+            return this.optional(element) || parseFloat(value) == 0;
+        }
+    });
     $('#salesForm').validate({
         rules: {
             debtor_no: {
@@ -821,7 +893,20 @@ $(function() {
             },
             delivery_price: {
                 number:true
+            },
+            downpayment: {
+                number:true,
+                comparison: true,
+                min: 0,
+                required: true
             }
+        },
+        messages: {
+            downpayment:{
+                comparison: "Please insert value less than or equal to grand total",
+                required: "Please enter the down payment amount"
+            }
+
         }
     });
 
