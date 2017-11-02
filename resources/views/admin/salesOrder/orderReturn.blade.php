@@ -7,7 +7,7 @@
       <div class="col-md-12">
         <div class="box box-default">
            <div class="box-header">
-              <h4 class="text-info ">{{ trans('message.table.order_no')}} # <a href="{{url('order/view-order-details/'.$saleData->order_no)}}">{{$saleData->reference}}</a></h4>
+              <h4 class="text-info ">Return and Exchange {{ trans('message.table.order_no')}} # <a href="{{url('order/view-order-details/'.$saleData->order_no)}}">{{$saleData->reference}}</a></h4>
             </div>
         <!-- /.box-header -->
         <div class="box-body">
@@ -883,6 +883,18 @@ $(function() {
           }else{
               $("#downpayment").attr('readonly', false);
           }
+
+          /* Check the total items quantity and previuosly entered quantity
+           * if previosly entered quantity != currently entered quantity then the user can not submit the new order
+           **/
+          var currentTotalQuantity = 0;
+          var enteredQuantity = parseInt($("#itemTotalQuantity").val());
+
+          $(".no_units").each(function(){
+              currentTotalQuantity += parseInt($(this).val());
+          });
+
+          getTotalQuantity(currentTotalQuantity, enteredQuantity);
 
         });
 
