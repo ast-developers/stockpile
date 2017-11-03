@@ -90,7 +90,7 @@ class Sales extends Model
          return $total;
     }
 
-        public function calculateTaxRow($order_no){
+    public function calculateTaxRow($order_no, $jobContract=false){
         
         $tax_rows = DB::table('sales_order_details')
                 ->join('item_tax_types', 'item_tax_types.id', '=', 'sales_order_details.tax_type_id')
@@ -98,7 +98,14 @@ class Sales extends Model
                 ->where('order_no', $order_no)
                 ->get();
 
-       // d($tax_rows,1);
+        if($jobContract)
+        {
+            $tax_rows = DB::table('job_contract_details')
+                ->join('item_tax_types', 'item_tax_types.id', '=', 'job_contract_details.tax_type_id')
+                ->select(DB::raw('((job_contract_details.quantity*job_contract_details.unit_price-job_contract_details.quantity*job_contract_details.unit_price*job_contract_details.discount_percent/100)*item_tax_types.tax_rate)/100 AS tax_amount,item_tax_types.tax_rate'))
+                ->where('job_contract_no', $order_no)
+                ->get();
+        }
 
         $tax_amount = [];
         $tax_rate   =[];

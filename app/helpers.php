@@ -402,3 +402,9 @@ function fetchTotalAmountPaidForOrder($invoiceRef){
     $paymentInfo = \DB::select("SELECT COALESCE(SUM(amount), 0) as total_paid FROM payment_history WHERE invoice_reference = '$invoiceRef'");
     return $paymentInfo[0]->total_paid;
 }
+
+
+function fetch_jobContractInvoicedCount($contactId){
+    $invoicedInfo = \DB::select("SELECT COALESCE(SUM(jcd.quantity), 0) AS invoiced_quantity, jcd.job_contract_no  FROM job_contract_details AS jcd LEFT JOIN job_contracts AS jc ON jc.job_contract_no=jcd.job_contract_no WHERE jc.contract_reference IS NOT NULL AND jcd.job_contract_no='$contactId'");
+    return $invoicedInfo[0]->invoiced_quantity;
+}

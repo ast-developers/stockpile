@@ -24,16 +24,16 @@
                 <ul class="nav nav-tabs cus" role="tablist">
                     
                     <li>
-                      <a href='{{url("order/list")}}' >{{ trans('message.extra_text.all') }}</a>
+                      <a href='{{url("contract/list")}}' >{{ trans('message.extra_text.all') }}</a>
                     </li>
                     
                     <li class="active">
-                      <a href="{{url("order/filtering")}}" >{{ trans('message.extra_text.filter') }}</a>
+                      <a href="{{url("contract/filtering")}}" >{{ trans('message.extra_text.filter') }}</a>
                     </li>
 
                </ul>
 
-          <form class="form-horizontal" action="{{ url('order/filtering') }}" method="GET" id='orderListFilter'>
+          <form class="form-horizontal" action="{{ url('contract/filtering') }}" method="GET" id='orderListFilter'>
           <div class="col-md-12">
             <div class="row">
 
@@ -61,22 +61,9 @@
                   </div>
                </div> 
 
-               <div class="col-md-2">
-                 <div class="form-group" style="margin-right: 5px">
-                  <label for="sel1">{{ trans('message.report.product') }}</label>
-                  <div class="input-group">
-                  <select class="form-control select2" name="product" id="product">
-                    <option value="">All</option>
-                    @if(!empty($productList))
-                    @foreach($productList as $productItem)
 
-                    <option value="{{$productItem->stock_id}}" <?= ($productItem->stock_id == $item) ? 'selected' : ''?>>{{$productItem->description}}</option>
-                    @endforeach
-                    @endif
-                  </select>
-                  </div>
-                </div>
-               </div>
+
+
                <div class="col-md-2">
                  <div class="form-group" style="margin-right: 5px">
                   <label for="sel1">{{ trans('message.form.customer') }}</label>
@@ -129,44 +116,40 @@
       <div class="box">
             <div class="box-body">
               <div class="table-responsive">
-                <table id="orderList" class="table table-bordered table-striped">
+                <table id="contractList" class="table table-bordered table-striped">
                   <thead>
                   <tr>
-                    <th>{{ trans('message.table.order') }} #</th>
+                    <th>{{ trans('message.table.contract') }} #</th>
                     <th>{{ trans('message.table.customer_name') }}</th>
                     <th>{{ trans('message.extra_text.quantity') }}</th>
                     <th>{{ trans('message.invoice.invoiced') }}</th>
-                    <th>{{ trans('message.invoice.packed') }}</th>
                     <th>{{ trans('message.invoice.paid') }}</th>
                     <th>{{ trans('message.table.total') }}</th>
-                    <th>{{ trans('message.table.ord_date') }}</th>
+                    <th>{{ trans('message.table.contract_date') }}</th>
                     <th width="5%">{{ trans('message.table.action') }}</th>
                   </tr>
                   </thead>
                   <tbody>
-                  @foreach($salesData as $data)
+                  @foreach($contractData as $data)
                  @if($data->ordered_quantity>0)
                   <tr>
-                    <td><a href="{{URL::to('/')}}/order/view-order-details/{{$data->order_no}}">{{$data->reference }}</a></td>
+                    <td><a href="{{URL::to('/')}}/contract/view-contract-details/{{$data->job_contract_no}}">{{$data->reference }}</a></td>
                     <td><a href="{{URL::to('/')}}/customer/edit/{{$data->debtor_no}}">{{ $data->name }}</a></td>
                     <td>{{ $data->ordered_quantity }}</td>
 
-                    @if( $data->invoiced_quantity == 0 )
-                      <td><span class="fa fa-circle-thin"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($data->invoiced_quantity)== 0)
-                      <td><span class="fa fa-circle"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($data->invoiced_quantity)>0)
-                      <td><span class="glyphicon glyphicon-adjust"></span></td>
-                    @endif
+                      <?php
+                      //call a helper function to fetch invoiced quantity for jon contract
+                      $invoiced_quantity = fetch_jobContractInvoicedCount($data->job_contract_no);
+                      ?>
 
+                      @if( $invoiced_quantity == 0 )
+                          <td><span class="fa fa-circle-thin"></span></td>
+                      @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)== 0)
+                          <td><span class="fa fa-circle"></span></td>
+                      @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)>0)
+                          <td><span class="glyphicon glyphicon-adjust"></span></td>
+                      @endif
 
-                    @if( $data->packed_qty == 0 )
-                    <td><span class="fa fa-circle-thin"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($data->packed_qty)== 0)
-                    <td><span class="fa fa-circle"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($data->packed_qty)>0)
-                    <td><span class="glyphicon glyphicon-adjust"></span></td>
-                    @endif
 
                     @if( $data->paid_amount == 0 )
                       <td><span class="fa fa-circle-thin"></span></td>
@@ -179,29 +162,26 @@
                     @endif
 
                     <td>{{ Session::get('currency_symbol').number_format($data->order_amount,2,'.',',') }}</td>
-                    <td>{{formatDate($data->ord_date)}}</td>
+                    <td>{{formatDate($data->contract_date)}}</td>
                     <td>
                     
-                    @if(!empty(Session::get('order_edit')))
-                        
 
-                        <a  title="Edit" class="btn btn-xs btn-primary" href='{{ url("order/edit/$data->order_no") }}'><span class="fa fa-edit"></span></a> &nbsp;
+                    <a  title="Edit" class="btn btn-xs btn-primary" href='{{ url("contract/edit/$data->job_contract_no") }}'><span class="fa fa-edit"></span></a> &nbsp;
 
-                    @endif
-                    @if(!empty(Session::get('order_delete')))
-                        <form method="POST" action="{{ url("order/delete/$data->order_no") }}" accept-charset="UTF-8" style="display:inline">
-                            {!! csrf_field() !!}
-                            
-                            <button title="delete" class="btn btn-xs btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_order') }}" data-message="{{ trans('message.invoice.delete_order_confirm') }}">
-                                <i class="glyphicon glyphicon-trash"></i> 
-                            </button>
-                        </form>
-                    @endif
+
+                    <form method="POST" action="{{ url("contract/delete/$data->job_contract_no") }}" accept-charset="UTF-8" style="display:inline">
+                        {!! csrf_field() !!}
+
+                        <button title="delete" class="btn btn-xs btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_order') }}" data-message="{{ trans('message.invoice.delete_contract_confirm') }}">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    </form>
+
                     </td>
                   </tr>
                   @endif
                  @endforeach
-                  </tfoot>
+                  </tbody>
                 </table>
               </div>
             </div>
@@ -231,10 +211,10 @@
     });
     
   $(function () {
-    $("#orderList").DataTable({
+    $("#contractList").DataTable({
       "order": [],
       "columnDefs": [ {
-        "targets": 8,
+        "targets": 7,
         "orderable": false
         } ],
 

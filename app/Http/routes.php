@@ -192,6 +192,10 @@
 		Route::post('contract/update','JobContractController@update');
 		Route::post('contract/delete/{id}','JobContractController@destroy');
 		Route::get('contract/view-order/{id}','JobContractController@viewOrder');
+		Route::post('contracts/reference-validation','JobContractController@referenceValidation');
+
+		Route::get('contract/view-contract-details/{id}','JobContractController@viewContractDetails');
+		Route::get('contract/filtering','JobContractController@orderFiltering');
 
 
 		// Invoice Routing

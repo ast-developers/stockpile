@@ -8,11 +8,11 @@
         <div class="box-body">
           <div class="row">
             <div class="col-md-10">
-             <div class="top-bar-title">{{ trans('message.email.sales_order') }}</div>
+             <div class="top-bar-title">{{ trans('message.email.job_contract') }}</div>
             </div>
             <div class="col-md-2">
-              @if(!empty(Session::get('order_add')))
-                <a href="{{ url("order/add") }}" class="btn btn-block btn-default btn-flat btn-border-orange"><span class="fa fa-plus"> &nbsp;</span>{{ trans('message.extra_text.new_sales_order') }}</a>
+              @if(!empty(Session::get('contract_add')))
+                <a href="{{ url("contract/add") }}" class="btn btn-block btn-default btn-flat btn-border-orange"><span class="fa fa-plus"> &nbsp;</span>{{ trans('message.extra_text.add_new_contract') }}</a>
               @endif
             </div>
           </div>
@@ -26,27 +26,24 @@
                 
                   <div class="row">
                     <div class="col-md-4">
-                      <strong>{{ trans('message.invoice.order_date')}} : {{ formatDate($saleData->ord_date)}}</strong>
+                      <strong>{{ trans('message.form.contract_date')}} : {{ formatDate($contractData->contract_date)}}</strong>
                       <br>
-                      <strong>{{ trans('message.extra_text.location')}} : {{ $saleData->location_name}}</strong>
+                      <strong>{{ trans('message.extra_text.location')}} : {{ $contractData->location_name}}</strong>
                     </div>
                     <div class="col-md-8">
                       <div class="btn-group pull-right">
                         <button title="Email" type="button" class="btn btn-default btn-flat" data-toggle="modal" data-target="#emailOrder">{{ trans('message.extra_text.email') }}</button>
-                        <a target="_blank" href="{{URL::to('/')}}/order/print/{{$saleData->order_no}}" title="Print" class="btn btn-default btn-flat">{{ trans('message.extra_text.print') }}</a>
-                        <a target="_blank" href="{{URL::to('/')}}/order/pdf/{{$saleData->order_no}}" title="PDF" class="btn btn-default btn-flat">{{ trans('message.extra_text.pdf') }}</a>
-                        @if(!empty(Session::get('order_edit')))
-                          <a href="{{URL::to('/')}}/order/edit/{{$saleData->order_no}}" title="Edit" class="btn btn-default btn-flat">{{ trans('message.extra_text.edit') }}</a>
-                        @endif
+                        <a target="_blank" href="{{URL::to('/')}}/contract/print/{{$contractData->job_contract_no}}" title="Print" class="btn btn-default btn-flat">{{ trans('message.extra_text.print') }}</a>
+                        <a target="_blank" href="{{URL::to('/')}}/contract/pdf/{{$contractData->job_contract_no}}" title="PDF" class="btn btn-default btn-flat">{{ trans('message.extra_text.pdf') }}</a>
+                          <a href="{{URL::to('/')}}/contract/edit/{{$contractData->job_contract_no}}" title="Edit" class="btn btn-default btn-flat">{{ trans('message.extra_text.edit') }}</a>
 
-                        @if(!empty(Session::get('order_delete')))
-                         <form method="POST" action="{{ url("order/delete/$saleData->order_no") }}" accept-charset="UTF-8" style="display:inline">
+                         <form method="POST" action="{{ url("contract/delete/$contractData->job_contract_no") }}" accept-charset="UTF-8" style="display:inline">
                             {!! csrf_field() !!}
-                            <button class="btn btn-default btn-flat delete-btn" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_order') }}" data-message="{{ trans('message.invoice.delete_order_confirm') }}">
+                            <button class="btn btn-default btn-flat delete-btn" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_contract') }}" data-message="{{ trans('message.invoice.delete_contract_confirm') }}">
                                {{ trans('message.extra_text.delete') }}
                             </button>
                         </form>
-                        @endif
+
                       </div>
                     </div>
                   </div>
@@ -114,19 +111,19 @@
                               </tr>
                           @endforeach
                          <?php
-                            $subTotalDiscountPrice = ($subTotal*$saleData->discount_percent)/100;
+                            $subTotalDiscountPrice = ($subTotal*$contractData->discount_percent)/100;
                             $subTotal = number_format(($subTotal-$subTotalDiscountPrice), 2, '.', ',');
                          ?>
                           <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.total_qty') }}</td><td align="right" colspan="2">{{$units}}</td></tr>
-                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.discount') }}(%)</td><td align="right" colspan="2">{{ $saleData->discount_percent }}</td></tr>
+                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.discount') }}(%)</td><td align="right" colspan="2">{{ $contractData->discount_percent }}</td></tr>
                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.sub_total') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').$subTotal }}</td></tr>
-                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.delivery_price') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').($saleData->delivery_price ? (number_format($saleData->delivery_price,2,'.',',')): '') }}</td></tr>
+                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.delivery_price') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').($contractData->delivery_price ? (number_format($contractData->delivery_price,2,'.',',')): '') }}</td></tr>
                         @foreach($taxType as $rate=>$tax_amount)
                         @if($rate != 0)
                         <tr><td colspan="5" align="right">Plus Tax({{$rate}}%)</td><td colspan="2" class="text-right">{{ Session::get('currency_symbol').number_format($tax_amount,2,'.',',') }}</td></tr>
                         @endif
                         @endforeach
-                          <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td colspan="2" class="text-right"><strong>{{Session::get('currency_symbol').number_format($saleData->total,2,'.',',')}}</strong></td></tr>
+                          <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td colspan="2" class="text-right"><strong>{{Session::get('currency_symbol').number_format($contractData->total,2,'.',',')}}</strong></td></tr>
                           <?php
                            $invoiceAmount = 0;
                             if(!empty($paymentsList)){
@@ -137,7 +134,7 @@
                             }
                           ?>
                           <tr><td colspan="5" align="right">{{ trans('message.invoice.paid') }}</td><td colspan="2" class="text-right">{{Session::get('currency_symbol').number_format($invoiceAmount,2,'.',',')}}</td></tr>
-                          <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.invoice.due') }}</strong></td><td colspan="2" class="text-right"><strong>{{Session::get('currency_symbol').number_format(($saleData->total-$invoiceAmount),2,'.',',')}}</strong></td></tr>
+                          <tr class="tableInfos"><td colspan="5" align="right"><strong>{{ trans('message.invoice.due') }}</strong></td><td colspan="2" class="text-right"><strong>{{Session::get('currency_symbol').number_format(($contractData->total-$invoiceAmount),2,'.',',')}}</strong></td></tr>
                         @endif
                         </tbody>
                       </table>
@@ -154,7 +151,7 @@
           <div class="modal-dialog">
             <form id="sendOrderInfo" method="POST" action="{{url('order/email-order-info')}}">
             <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
-            <input type="hidden" value="{{$orderInfo->order_no}}" name="order_id" id="order_id">
+            <input type="hidden" value="{{$contractInfo->job_contract_no}}" name="order_id" id="order_id">
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -166,7 +163,7 @@
                   <input type="email" value="{{$customerInfo->email}}" class="form-control" name="email" id="email">
                 </div>
                 <?php
-                $subjectInfo = str_replace('{order_reference_no}', $orderInfo->reference, $emailInfo->subject);
+                $subjectInfo = str_replace('{order_reference_no}', $contractInfo->reference, $emailInfo->subject);
                 $subjectInfo = str_replace('{company_name}', Session::get('company_name'), $subjectInfo);
                 ?>
                 <div class="form-group">
@@ -176,7 +173,7 @@
                   <div class="form-groupa">
                       <?php
                       $bodyInfo = str_replace('{customer_name}', $customerInfo->name, $emailInfo->body);
-                      $bodyInfo = str_replace('{order_reference_no}', $orderInfo->reference, $bodyInfo);
+                      $bodyInfo = str_replace('{order_reference_no}', $contractInfo->reference, $bodyInfo);
                       $bodyInfo = str_replace('{billing_street}', $customerInfo->billing_street, $bodyInfo);
                       $bodyInfo = str_replace('{billing_city}', $customerInfo->billing_city, $bodyInfo);
                       $bodyInfo = str_replace('{billing_state}', $customerInfo->billing_state, $bodyInfo);
@@ -185,8 +182,8 @@
                       $bodyInfo = str_replace('{company_name}', Session::get('company_name'), $bodyInfo);
                       $bodyInfo = str_replace('{order_summery}', $itemsInformation, $bodyInfo);                     
                       $bodyInfo = str_replace('{currency}', Session::get('currency_symbol'), $bodyInfo);
-                      $bodyInfo = str_replace('{total_amount}', $saleData->total, $bodyInfo); 
-                      $bodyInfo = str_replace('{order_date}', formatDate($saleData->ord_date), $bodyInfo); 
+                      $bodyInfo = str_replace('{total_amount}', $contractData->total, $bodyInfo);
+                      $bodyInfo = str_replace('{order_date}', formatDate($contractData->contract_date), $bodyInfo);
                       ?>
                       <textarea id="compose-textarea" name="message" id='message' class="form-control editor" style="height: 200px">{{$bodyInfo}}</textarea>
                   </div>
@@ -199,7 +196,7 @@
           </div>
         </div>
         <!--Modal end -->
-         @include('layouts.includes.content_right_option')
+         @include('layouts.includes.contentJobContract_right_option')
       </div>
     </section>
 @include('layouts.includes.message_boxes')    

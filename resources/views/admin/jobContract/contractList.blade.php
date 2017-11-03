@@ -39,7 +39,7 @@
       <div class="box">
             <div class="box-body">
               <div class="table-responsive">
-                <table id="orderList" class="table table-bordered table-striped">
+                <table id="contractList" class="table table-bordered table-striped">
                   <thead>
                   <tr>
                     <th>{{ trans('message.table.contract') }} #</th>
@@ -48,7 +48,7 @@
                     <th>{{ trans('message.invoice.invoiced') }}</th>
                     <th>{{ trans('message.invoice.paid') }}</th>
                     <th>{{ trans('message.table.total') }}</th>
-                    <th>{{ trans('message.table.ord_date') }}</th>
+                    <th>{{ trans('message.table.contract_date') }}</th>
                     <th width="5%">{{ trans('message.table.action') }}</th>
                   </tr>
                   </thead>
@@ -56,15 +56,20 @@
                   @foreach($contractsData as $data)
                  @if($data->ordered_quantity>0)
                   <tr>
-                    <td><a href="{{URL::to('/')}}/order/view-order-details/{{$data->order_no}}">{{$data->reference }}</a></td>
+                    <td><a href="{{URL::to('/')}}/contract/view-contract-details/{{$data->job_contract_no}}">{{$data->reference }}</a></td>
                     <td><a href="{{URL::to('/')}}/customer/edit/{{$data->debtor_no}}">{{ $data->name }}</a></td>
                     <td>{{ $data->ordered_quantity }}</td>
 
-                    @if( $data->invoiced_quantity == 0 )
+                   <?php
+                      //call a helper function to fetch invoiced quantity for jon contract
+                      $invoiced_quantity = fetch_jobContractInvoicedCount($data->job_contract_no);
+                    ?>
+
+                    @if( $invoiced_quantity == 0 )
                       <td><span class="fa fa-circle-thin"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($data->invoiced_quantity)== 0)
+                    @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)== 0)
                       <td><span class="fa fa-circle"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($data->invoiced_quantity)>0)
+                    @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)>0)
                       <td><span class="glyphicon glyphicon-adjust"></span></td>
                     @endif
 
@@ -80,22 +85,20 @@
                     @endif
 
                     <td>{{ Session::get('currency_symbol').number_format($data->order_amount,2,'.',',') }}</td>
-                    <td>{{formatDate($data->ord_date)}}</td>
-                    <td>
-                    
-                    @if(!empty(Session::get('contract_edit')))
+                    <td>{{formatDate($data->contract_date)}}</td>
+
+                      <td>
+
                         <a  title="Edit" class="btn btn-xs btn-primary" href='{{ url("contract/edit/$data->job_contract_no") }}'><span class="fa fa-edit"></span></a> &nbsp;
 
-                    @endif
-                    @if(!empty(Session::get('order_delete')))
                         <form method="POST" action="{{ url("contract/delete/$data->job_contract_no") }}" accept-charset="UTF-8" style="display:inline">
                             {!! csrf_field() !!}
                             
-                            <button title="delete" class="btn btn-xs btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_order') }}" data-message="{{ trans('message.invoice.delete_order_confirm') }}">
+                            <button title="delete" class="btn btn-xs btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_order') }}" data-message="{{ trans('message.invoice.delete_contract_confirm') }}">
                                 <i class="glyphicon glyphicon-trash"></i> 
                             </button>
                         </form>
-                    @endif
+
                     </td>
                   </tr>
                   @endif
@@ -130,10 +133,10 @@
     });
 
   $(function () {
-    $("#orderList").DataTable({
+    $("#contractList").DataTable({
       "order": [],
       "columnDefs": [ {
-        "targets": 8,
+        "targets": 7,
         "orderable": false
         } ],
 
