@@ -295,7 +295,7 @@ class JobContractController extends Controller
             if ($record) {
 
                 // Delete Payment information
-                //DB::table('payment_history')->where('order_reference', '=', $record->reference)->delete();
+                DB::table('job_contract_payment_history')->where('contract_reference', '=', $record->reference)->delete();
 
                 // Delete invoice information
                 $invoice = \DB::table('job_contracts')->where('contract_reference_id', $record->job_contract_no)->first();
@@ -370,10 +370,10 @@ class JobContractController extends Controller
         $data['invoiceQty']   = $fetchInvoiveQty[0]->total;*/
         $data['contractQty']  = DB::table('job_contract_details')->where(['job_contract_no' => $contractNo, 'trans_type' => SALESORDER])->sum('quantity');
         $data['contractInfo'] = DB::table('job_contracts')->where('job_contract_no', $contractNo)->select('reference', 'job_contract_no')->first();
-        $data['paymentsList'] = DB::table('payment_history')
-            ->where(['order_reference' => $data['contractInfo']->reference])
-            ->leftjoin('payment_terms', 'payment_terms.id', '=', 'payment_history.payment_type_id')
-            ->select('payment_history.*', 'payment_terms.name')
+        $data['paymentsList'] = DB::table('job_contract_payment_history')
+            ->where(['contract_reference' => $data['contractInfo']->reference])
+            ->leftjoin('payment_terms', 'payment_terms.id', '=', 'job_contract_payment_history.payment_type_id')
+            ->select('job_contract_payment_history.*', 'payment_terms.name')
             ->orderBy('payment_date', 'DESC')
             ->get();
         $lang                 = Session::get('dflt_lang');
@@ -564,6 +564,7 @@ class JobContractController extends Controller
         $itemDiscount = $request->discount;
         $taxIds       = $request->tax_id;
         $unitPrice    = $request->unit_price;
+        $stock_id    = $request->stock_id;
         $description  = $request->description;
         $arrayCount   = $request->arrayCount;
 
@@ -593,7 +594,7 @@ class JobContractController extends Controller
 
             // Create contractDetailInvoice Start
             $contractDetailInvoice[$i]['job_contract_no']  = $contractInvoiceId;
-            $contractDetailInvoice[$i]['stock_id']         = $contractInvoiceId;
+            $contractDetailInvoice[$i]['stock_id']         = $stock_id[$i];
             $contractDetailInvoice[$i]['description']      = $description[$i];
             $contractDetailInvoice[$i]['qty_sent']         = $itemQuantity[$i];
             $contractDetailInvoice[$i]['quantity']         = $itemQuantity[$i];
@@ -604,7 +605,7 @@ class JobContractController extends Controller
             // Create contractDetailInvoice End
 
             // create jobContractMove
-            $contractMove[$i]['stock_id']                 = $contractInvoiceId;
+            $contractMove[$i]['stock_id']                 = $stock_id[$i];
             $contractMove[$i]['contract_no']              = $request->job_contract_no;
             $contractMove[$i]['loc_code']                 = $request->from_stk_loc;
             $contractMove[$i]['tran_date']                = DbDateFormat($request->contract_date);

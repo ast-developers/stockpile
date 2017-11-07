@@ -373,6 +373,20 @@
 		Route::get('payment/pay-all/{orderid}','PaymentController@payAllAmount');
 
 		Route::get('payment/filtering','PaymentController@paymentFiltering');
+
+
+
+		// Job Contract Payment Routing
+		Route::get('contract/payment/list','ContractPaymentController@index');
+		Route::post('contract/payment/delete','ContractPaymentController@delete');
+		Route::get('contract/payment/view-receipt/{id}','ContractPaymentController@viewReceipt');
+		Route::get('contract/payment/create-receipt/{id}','ContractPaymentController@createReceiptPdf');
+		Route::get('contract/payment/print-receipt/{id}','ContractPaymentController@printReceipt');
+		Route::post('contract/payment/email-payment-info','ContractPaymentController@sendPaymentInformationByEmail');
+		Route::get('contract/payment/pay-all/{contractid}','ContractPaymentController@payAllAmount');
+
+		Route::get('contract/payment/filtering','ContractPaymentController@paymentFiltering');
+		Route::post('contract/payment/save','ContractPaymentController@createPayment');
 		
 		// Shipment Routing
 		Route::get('shipment/add/{id}','ShipmentController@createShipment');

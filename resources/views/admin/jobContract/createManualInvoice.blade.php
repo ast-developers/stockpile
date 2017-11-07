@@ -154,9 +154,9 @@
                   ?>
                     @foreach($invoiceData as $k=>$result)
 
-                        <?php $rowCount++; ?>
-
                         @if($result->item_rest > 0)
+
+                            <?php $rowCount++; ?>
 
                         <tr class="" data-tax_type="{{$result->tax_rate}}" id="rowid{{$rowCount}}">
                           <td class="text-center">{{$result->id}}<input type="hidden" name="stock_id[]" value="{{$result->stock_id}}"></td>

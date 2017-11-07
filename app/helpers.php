@@ -413,3 +413,15 @@ function getAvailableQtyByLocationForContract($stockid,$loc){
     $data = \DB::select("SELECT SUM(`qty`) as qty FROM `job_contract_moves` WHERE `loc_code`='$loc' AND `stock_id`= '$stockid'");
     return $data[0]->qty;
 }
+
+function getTotalPaidAmountByContract($order_reference,$order_no){
+    $invoiceInfo = \DB::select("SELECT SUM(total) as invoiceAmount,SUM(paid_amount) as paidAmount FROM job_contracts WHERE contract_reference_id = '$order_no'");
+
+    if(($invoiceInfo[0]->invoiceAmount=='') && ($invoiceInfo[0]->paidAmount=='')){
+        $invoiceInfo = \DB::select("SELECT SUM(total) as invoiceAmount,SUM(paid_amount) as paidAmount FROM job_contracts WHERE job_contract_no = '$order_no'");
+    }
+
+    $dueAmount = ($invoiceInfo[0]->invoiceAmount - $invoiceInfo[0]->paidAmount);
+    //d($dueAmount,1);
+    return $dueAmount;
+}

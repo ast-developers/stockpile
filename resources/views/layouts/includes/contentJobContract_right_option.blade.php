@@ -88,7 +88,7 @@
             ?>
             @foreach($paymentsList as $payment)
             <tr>
-              <td align="center"><a href="{{ url("payment/view-receipt/$payment->id") }}"><i class="fa fa-chevron-right" aria-hidden="true"></i>&nbsp;{{sprintf("%04d", $payment->id)}}</a></td>
+              <td align="center"><a href="{{ url("contract/payment/view-receipt/$payment->id") }}"><i class="fa fa-chevron-right" aria-hidden="true"></i>&nbsp;{{sprintf("%04d", $payment->id)}}</a></td>
               <td align="center">{{$payment->invoice_reference}}</td>
               <td align="center">{{$payment->name}}</td>
               <td align="right">{{number_format($payment->amount,2,'.',',')}}</td>
@@ -102,11 +102,11 @@
         </table>
 
           <?php
-            $totalDueAmount = getTotalPaidAmountByOrder($contractInfo->reference,$contractInfo->job_contract_no);
+            $totalDueAmount = getTotalPaidAmountByContract($contractInfo->reference,$contractInfo->job_contract_no);
           ?>
           @if($totalDueAmount>0)
               <div class="btn-block-left-padding" style="margin-top:10px;">
-                <a href="{{URL::to('/')}}/payment/pay-all/{{$contractInfo->job_contract_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
+                <a href="{{URL::to('/')}}/contract/payment/pay-all/{{$contractInfo->job_contract_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
               </div>
           @endif
 
@@ -116,7 +116,7 @@
           <h5 class="text-center">{{ trans('message.invoice.no_payment') }}</h5>
 
           <div class="btn-block-left-padding" style="margin-top:10px;">
-            <a href="{{URL::to('/')}}/payment/pay-all/{{$contractInfo->job_contract_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
+            <a href="{{URL::to('/')}}/contract/payment/pay-all/{{$contractInfo->job_contract_no}}" title="{{ trans('message.extra_text.pay_all') }}" class="btn btn-success btn-flat btn-block">{{ trans('message.extra_text.pay_all') }}</a>
           </div>
 
           @endif

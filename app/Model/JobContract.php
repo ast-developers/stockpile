@@ -28,17 +28,22 @@ class JobContract extends Model
         }
 
         $data = DB::select(DB::raw("SELECT jc.`job_contract_no`,jc.from_stk_loc,jcd.description,jc.debtor_no,dm.name,jc.`reference`,jc.`total` as
-      order_amount,COALESCE(ph.paid_amount,0) as paid_amount,jcd.ordered_quantity,jc.contract_date  FROM
+      order_amount,COALESCE(ph.paid_amount,0) as paid_amount,jcd.ordered_quantity,COALESCE
+      (invocie.invoiced_quantity,0) as invoiced_quantity,jc.contract_date  FROM
       `job_contracts` as jc
       LEFT JOIN debtors_master as dm
       ON dm.`debtor_no` = jc.`debtor_no`
-      LEFT JOIN(SELECT SUM(`amount`) as paid_amount,`order_reference`
-      FROM `payment_history` GROUP BY `order_reference`)ph
-      ON ph.order_reference = jc.reference
+      LEFT JOIN(SELECT SUM(`amount`) as paid_amount,`contract_reference`
+      FROM `job_contract_payment_history` GROUP BY `contract_reference`)ph
+      ON ph.contract_reference = jc.reference
       LEFT JOIN(SELECT job_contract_no, description, SUM(quantity) as ordered_quantity FROM
       `job_contract_details` WHERE `trans_type` = 201 GROUP BY job_contract_no)
       jcd
       ON jcd.job_contract_no = jc.job_contract_no
+      LEFT JOIN(SELECT contract_no, SUM(qty) as invoiced_quantity FROM
+      `job_contract_moves` WHERE `trans_type` = 202 GROUP BY contract_no)
+      invocie
+      ON invocie.contract_no = jc.job_contract_no
       WHERE jc.`trans_type` = 201
       $where
       ORDER BY jc.contract_date DESC"));

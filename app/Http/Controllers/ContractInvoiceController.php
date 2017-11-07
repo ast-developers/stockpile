@@ -32,7 +32,11 @@ class ContractInvoiceController extends Controller
         $data['sub_menu'] = 'contract/direct-invoice';
 
         //$data['taxType'] = $this->sale->calculateTaxRow($invoiceNo);
-        $data['taxType'] = $this->sale->calculateTaxRow($contractNo, true);
+        $data['taxType'] = $this->sale->calculateTaxRow($invoiceNo, true);
+        if(empty($data['taxType'])){
+            if(empty($data['taxType'] = $this->sale->calculateTaxRow($contractNo, true)));
+        }
+
         $data['locData'] = DB::table('location')->get();
 
         $data['jobContractData'] = DB::table('job_contracts')
@@ -48,7 +52,11 @@ class ContractInvoiceController extends Controller
             ->select("job_contracts.*","location.location_name",'invoice_payment_terms.days_before_due')
             ->first();
 
-        $data['invoiceData'] = $this->jobContract->getJobContractByID($contractNo,$data['contractDataInvoice']->from_stk_loc);
+        $data['invoiceData'] = $this->jobContract->getJobContractByID($invoiceNo,$data['contractDataInvoice']->from_stk_loc);
+
+        if(empty($data['invoiceData'])){
+            $data['invoiceData'] = $this->jobContract->getJobContractByID($contractNo,$data['contractDataInvoice']->from_stk_loc);
+        }
 
         //d($data['saleDataOrder']);
         //d($data['saleDataInvoice'],1);
@@ -72,21 +80,23 @@ class ContractInvoiceController extends Controller
             ->select('job_contract_no','reference','contract_reference','total','paid_amount')
             ->orderBy('created_at','DESC')
             ->get();
+
         $data['contractInfo']  = DB::table('job_contracts')->where('job_contract_no',$contractNo)->select('reference','job_contract_no')->first();
+
         $data['invoiceQty'] = DB::table('job_contract_moves')->where(['contract_no'=>$contractNo,'trans_type'=>SALESINVOICE])->sum('qty');
         $data['contractQty']   = DB::table('job_contract_details')->where(['job_contract_no'=>$contractNo,'trans_type'=>SALESORDER])->sum('quantity');
         $data['payments']   = DB::table('payment_terms')->get();
-        /*$data['paymentsList'] = DB::table('payment_history')
-            ->where(['order_reference'=>$data['orderInfo']->reference])
-            ->leftjoin('payment_terms','payment_terms.id','=','payment_history.payment_type_id')
-            ->select('payment_history.*','payment_terms.name')
+        $data['paymentsList'] = DB::table('job_contract_payment_history')
+            ->where(['contract_reference'=>$data['contractInfo']->reference])
+            ->leftjoin('payment_terms','payment_terms.id','=','job_contract_payment_history.payment_type_id')
+            ->select('job_contract_payment_history.*','payment_terms.name')
             ->orderBy('payment_date','DESC')
-            ->get();*/
+            ->get();
         $data['invoice_no'] = $invoiceNo;
         $lang = Session::get('dflt_lang');
         $data['emailInfo'] = DB::table('email_temp_details')->where(['temp_id'=>4,'lang'=>$lang])->select('subject','body')->first();
         $data['due_date']  = formatDate(date('Y-m-d', strtotime("+".$data['contractDataInvoice']->days_before_due."days")));
-        //d( $data['saleDataInvoice'] ,1);
+
         return view('admin.jobContractInvoice.viewInvoiceDetails', $data);
     }
 
@@ -161,7 +171,7 @@ class ContractInvoiceController extends Controller
                 DB::table('job_contracts')->where('job_contract_no', '=', $invoice_id)->delete();
                 DB::table('job_contract_details')->where('job_contract_no', '=', $invoice_id)->delete();
                 DB::table('job_contract_moves')->where('reference', '=', 'store_out_'.$invoice_id)->delete();
-                //DB::table('payment_history')->where('invoice_reference', '=', $invoice_reference)->delete();
+                DB::table('job_contract_payment_history')->where('invoice_reference', '=', $invoice_reference)->delete();
 
                 \Session::flash('success',trans('message.success.delete_success'));
                 return redirect()->intended('contract/sales/list');

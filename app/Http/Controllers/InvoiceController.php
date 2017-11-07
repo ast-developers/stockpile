@@ -35,7 +35,11 @@ class InvoiceController extends Controller
         $data['sub_menu'] = 'sales/direct-invoice';
 
         //$data['taxType'] = $this->sale->calculateTaxRow($invoiceNo);
-        $data['taxType'] = $this->sale->calculateTaxRow($orderNo);
+        $data['taxType'] = $this->sale->calculateTaxRow($invoiceNo);
+        if(empty($data['taxType'])){
+            if(empty($data['taxType'] = $this->sale->calculateTaxRow($orderNo)));
+        }
+
         $data['locData'] = DB::table('location')->get();
         
         $data['saleDataOrder'] = DB::table('sales_orders')
@@ -50,8 +54,12 @@ class InvoiceController extends Controller
                     ->leftJoin('invoice_payment_terms','invoice_payment_terms.id','=','sales_orders.payment_term')
                     ->select("sales_orders.*","location.location_name",'invoice_payment_terms.days_before_due')
                     ->first();                    
-        $data['invoiceData'] = $this->order->getSalseOrderByID($orderNo,$data['saleDataInvoice']->from_stk_loc);
-       
+        $data['invoiceData'] = $this->order->getSalseOrderByID($invoiceNo,$data['saleDataInvoice']->from_stk_loc);
+
+        if(empty($data['invoiceData'])){
+            $data['invoiceData'] = $this->order->getSalseOrderByID($orderNo,$data['saleDataInvoice']->from_stk_loc);
+        }
+
        //d($data['saleDataOrder']);
        //d($data['saleDataInvoice'],1);
 

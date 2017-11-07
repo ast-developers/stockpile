@@ -179,13 +179,13 @@
         </div>
         <div class="modal-body">
 
-        <form class="form-horizontal" id="payForm" action="{{url('payment/save')}}" method="POST">
+        <form class="form-horizontal" id="payForm" action="{{url('contract/payment/save')}}" method="POST">
           <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
           <input type="hidden" name="invoice_reference" value="{{$contractDataInvoice->reference}}">
-          <input type="hidden" name="order_reference" value="{{$contractDataInvoice->reference}}">
+          <input type="hidden" name="contract_reference" value="{{$contractDataInvoice->reference}}">
           <input type="hidden" name="customer_id" value="{{$customerInfo->debtor_no}}">
 
-          <input type="hidden" name="order_no" value="{{$contractInfo->job_contract_no}}">
+          <input type="hidden" name="contract_no" value="{{$contractInfo->job_contract_no}}">
           <input type="hidden" name="invoice_no" value="{{$invoice_no}}">
           
           <div class="form-group">

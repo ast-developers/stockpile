@@ -163,7 +163,6 @@ class ContractSalesController extends Controller
 
             // create contractDetail Start
             $contractDetail[$i]['job_contract_no']  = $jobContractId;
-            $contractDetail[$i]['stock_id']         = $jobContractId;
             $contractDetail[$i]['description']      = $description[$i];
             $contractDetail[$i]['qty_sent']         = $itemQuantity[$i];
             $contractDetail[$i]['quantity']         = $itemQuantity[$i];
@@ -174,7 +173,6 @@ class ContractSalesController extends Controller
 
             // Create salesOrderDetailInvoice Start
             $contractDetailInvoice[$i]['job_contract_no']  = $contractInvoiceId;
-            $contractDetailInvoice[$i]['stock_id']         = $contractInvoiceId;
             $contractDetailInvoice[$i]['description']      = $description[$i];
             $contractDetailInvoice[$i]['qty_sent']         = $itemQuantity[$i];
             $contractDetailInvoice[$i]['quantity']         = $itemQuantity[$i];
@@ -185,7 +183,6 @@ class ContractSalesController extends Controller
             // Create salesOrderDetailInvoice End
 
             // create stockMove
-            $contractMove[$i]['stock_id']                 = $contractInvoiceId;
             $contractMove[$i]['loc_code']                 = $request->from_stk_loc;
             $contractMove[$i]['tran_date']                = DbDateFormat($request->contract_date);
             $contractMove[$i]['person_id']                = $userId;
@@ -201,6 +198,11 @@ class ContractSalesController extends Controller
         }
 
         for ($i = 0; $i < count($contractDetailInvoice); $i++) {
+            $jobContractDetailMaxId = DB::table('job_contract_details')->select('id')->orderBy('id', 'DESC')->first();
+
+            $contractDetail[$i]['stock_id']        = $jobContractDetailMaxId->id;
+            $contractDetailInvoice[$i]['stock_id'] = $jobContractDetailMaxId->id;
+            $contractMove[$i]['stock_id']          = $jobContractDetailMaxId->id;
 
             DB::table('job_contract_details')->insertGetId($contractDetail[$i]);
             DB::table('job_contract_details')->insertGetId($contractDetailInvoice[$i]);
@@ -258,6 +260,7 @@ class ContractSalesController extends Controller
         $itemDiscount = $request->discount;
         $itemPrice    = $request->item_price;
         $description  = $request->description;
+        $stock_id     = $request->stock_id;
         $arrayCount   = $request->arrayCount;
 
         // update sales_order table
@@ -281,7 +284,7 @@ class ContractSalesController extends Controller
         if (count($itemQty) > 0) {
             for ($i = 0; $i < $arrayCount; $i++) {
                 // update sales_order_details table
-                $contractDetail[$i]['stock_id']         = $contract_no;
+                $contractDetail[$i]['stock_id']         = $stock_id[$i];
                 $contractDetail[$i]['description']      = $description[$i];
                 $contractDetail[$i]['unit_price']       = $unitPrice[$i];
                 $contractDetail[$i]['qty_sent']         = $itemQty[$i];
@@ -290,7 +293,7 @@ class ContractSalesController extends Controller
                 $contractDetail[$i]['discount_percent'] = $itemDiscount[$i];
 
                 // Update stock_move table
-                $contractMove[$i]['stock_id']                 = $contract_no;
+                $contractMove[$i]['stock_id']                 = $stock_id[$i];
                 $contractMove[$i]['trans_type']               = SALESINVOICE;
                 $contractMove[$i]['loc_code']                 = $request->from_stk_loc;
                 $contractMove[$i]['tran_date']                = DbDateFormat($request->ord_date);

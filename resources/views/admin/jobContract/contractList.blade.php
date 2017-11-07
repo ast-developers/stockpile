@@ -62,14 +62,14 @@
 
                    <?php
                       //call a helper function to fetch invoiced quantity for jon contract
-                      $invoiced_quantity = fetch_jobContractInvoicedCount($data->job_contract_no);
+                      //$invoiced_quantity = fetch_jobContractInvoicedCount($data->job_contract_no);
                     ?>
 
-                    @if( $invoiced_quantity == 0 )
+                    @if( $data->invoiced_quantity == 0 )
                       <td><span class="fa fa-circle-thin"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)== 0)
+                    @elseif(abs($data->ordered_quantity) - abs($data->invoiced_quantity)== 0)
                       <td><span class="fa fa-circle"></span></td>
-                    @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)>0)
+                    @elseif(abs($data->ordered_quantity) - abs($data->invoiced_quantity)>0)
                       <td><span class="glyphicon glyphicon-adjust"></span></td>
                     @endif
 
