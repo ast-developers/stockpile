@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Sales Order</title>
+<title>Job Contract</title>
 </head>
 <style>
  body{ font-family:DejaVu Sans, sans-serif; color:#121212; line-height:20px;}
@@ -19,13 +19,14 @@ tr{ height:40px;}
       </div>
 
       <div style="width:450px; float:left; margin-top:70px;height:50px;">
-          <div style="font-size:30px; font-weight:bold; color:#383838;">Sales Order</div>
+          <div style="font-size:30px; font-weight:bold; color:#383838;">Job Contract</div>
       </div>
 
       <div style="width:450px; float:right;height:50px;margin-top:70px">
-          <div style="text-align:right; font-size:14px; color:#383838;"><strong>Order No # {{$saleData->reference}}</strong></div>
-          <div style="text-align:right; font-size:14px; color:#383838;"><strong>Order Date : {{formatDate($saleData->ord_date)}}</strong></div>
+          <div style="text-align:right; font-size:14px; color:#383838;"><strong>Job Contract No # {{$contractData->reference}}</strong></div>
+          <div style="text-align:right; font-size:14px; color:#383838;"><strong>Contract Date : {{formatDate($contractData->contract_date)}}</strong></div>
       </div>
+
   <div style="clear:both;"></div>
 
   <div style="margin-top:40px;height:125px;">
@@ -99,7 +100,7 @@ tr{ height:40px;}
   @endforeach
 
        <?php
-       $subTotalDiscountPrice = ($subTotalAmount*$saleData->discount_percent)/100;
+       $subTotalDiscountPrice = ($subTotalAmount*$contractData->discount_percent)/100;
        $subTotalAmount = number_format(($subTotalAmount-$subTotalDiscountPrice), 2, '.', ',');
        ?>
 
@@ -108,14 +109,12 @@ tr{ height:40px;}
          Total Quantity<br />
           <strong>Discount(%)</strong><br/>
        <strong>SubTotal</strong><br/>
-        <strong>Delivery Fee</strong><br/>
         </td>   
 
       <td style="text-align:right; padding-right:10px;border-bottom:none">
         {{$sum}}<br />
-          {{number_format(($saleData->discount_percent),2,'.',',')}}<br/>
+          {{number_format(($contractData->discount_percent),2,'.',',')}}<br/>
        {{Session::get('currency_symbol').number_format(($subTotalAmount),2,'.',',')}}<br/>
-          {{Session::get('currency_symbol').number_format(($saleData->delivery_price),2,'.',',')}}<br/>
       </td>
     </tr>
 
@@ -139,7 +138,7 @@ tr{ height:40px;}
 
     <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">
       <td colspan="6" style="text-align:right;"><strong>Grand Total</strong></td>
-      <td style="text-align:right; padding-right:10px"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount+($saleData->delivery_price)),2,'.',',')}}</strong></td>
+      <td style="text-align:right; padding-right:10px"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount),2,'.',',')}}</strong></td>
     </tr>
    </table> 
     </div>

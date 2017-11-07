@@ -1,7 +1,7 @@
 <div class="col-md-4 left-padding-col4">
     <div class="box box-default">
       <div class="box-header text-center">
-        <h5 class="text-left text-info"><b>{{ trans('message.table.job_contract_no') }} # <a href="{{URL::to('/')}}/order/view-order-details/{{$contractInfo->job_contract_no}}">{{$contractInfo->reference}}</a></b></h5>
+        <h5 class="text-left text-info"><b>{{ trans('message.table.job_contract_no') }} # <a href="{{URL::to('/')}}/contract/view-contract-details/{{$contractInfo->job_contract_no}}">{{$contractInfo->reference}}</a></b></h5>
       </div>
     </div>
     <!--Start-->
@@ -25,7 +25,7 @@
             @foreach($invoiceList as $key=>$invoice)
             <tr>
               <td align="left">
-                <a href="{{URL::to('/')}}/invoice/view-detail-invoice/{{$contractInfo->job_contract_no.'/'.$invoice->job_contract_no}}">
+                <a href="{{URL::to('/')}}/contract/invoice/view-detail-invoice/{{$contractInfo->job_contract_no.'/'.$invoice->job_contract_no}}">
                     @if($invoice->total <= $invoice->paid_amount)
                     <i class="fa fa-check" aria-hidden="true"></i>
                      @else

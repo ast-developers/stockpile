@@ -405,6 +405,7 @@ return [
     'customer_name'             => 'Customer Name',
     'payment_on'                => 'Payment Type',
     'order_no'                  => 'Order No',
+    'job_contract_no'                  => 'Job Contract No',
     'shipment_item_qty'         => 'Item quantity shipment',
     'deliver_date'              => 'Delivery Date',
     'shipment_list'             => 'Shipments',

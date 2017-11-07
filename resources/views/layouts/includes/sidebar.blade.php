@@ -76,7 +76,7 @@
               </a>
             </li>
             <li <?= isset($sub_menu) && $sub_menu == 'contract/direct-invoice' ? ' class="active"' : ''?> >
-              <a href="{{url('contract/direct-invoice')}}">
+              <a href="{{url('contract/sales/list')}}">
 
                 <span>{{ trans('message.table.invoices') }}</span>
               </a>

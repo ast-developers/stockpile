@@ -1,24 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<title>Job Contract</title>
-
-  <script type="text/javascript">
-    var is_chrome = function () { return Boolean(window.chrome); }
-    if(is_chrome) 
-    {
-       window.print();
-       setTimeout(function(){window.close();}, 10000); 
-       //give them 10 seconds to print, then close
-    }
-    else
-    {
-       window.print();
-       window.close();
-    }
-</script>
-
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Invoice</title>
 </head>
 <style>
  body{ font-family:DejaVu Sans, sans-serif; color:#121212; line-height:20px;}
@@ -27,33 +11,31 @@
     padding: 6px 0px;
 }
 tr{ height:40px;}
-
 </style>
+<body>
+  <div style="width:900px; margin:15px auto;">
 
-<body onLoad="loadHandler();">
-    <div style="width:900px; margin:15px auto;">
-        <div style="float:left; margin-top:-50px;height:50px;">
-            <div style="margin-left:-14px;font-size:30px; font-weight:bold; color:#383838;"><img src="{{asset('public/img/judea-mini.png')}}" style="width:200px; height: 100px;" alt=""/></div>
-        </div>
+      <div style="float:left; margin-top:-50px;height:50px;">
+          <div style="margin-left:-14px;font-size:30px; font-weight:bold; color:#383838;"><img src="{{asset('public/img/judea-mini.png')}}" style="width:200px; height: 100px;" alt=""/></div>
+      </div>
 
-        <div style="width:450px; float:left; margin-top:70px;height:50px;">
-            <div style="font-size:30px; font-weight:bold; color:#383838;">Job Contract</div>
-        </div>
-
-        <div style="width:450px; float:right;height:50px;margin-top:70px">
-            <div style="text-align:right; font-size:14px; color:#383838;"><strong>Job Contract No # {{$contractData->reference}}</strong></div>
-            <div style="text-align:right; font-size:14px; color:#383838;"><strong>Contract Date : {{formatDate($contractData->contract_date)}}</strong></div>
-        </div>
-        <div style="clear:both;"></div>
+    <div style="width:450px; float:left; margin-top:70px;height:50px;">
+   <div style="font-size:30px; font-weight:bold; color:#383838;">Invoice</div>
+  </div>
+  <div style="width:450px; float:right;height:50px;margin-top:70px">
+    <div style="text-align:right; font-size:14px; color:#383838;"><strong></strong></div>
+    <div style="text-align:right; font-size:14px; color:#383838;"><strong></strong></div>
+  </div>
+  <div style="clear:both;"></div>
 
   <div style="margin-top:40px;height:125px;">
     <div style="width:400px; float:left; font-size:15px; color:#383838; font-weight:400;">
       <div><strong>{{ Session::get('company_name') }}</strong></div>
-        <div>{{ Session::get('company_street') }}</div>
-        <div>{{ Session::get('company_city') }}, {{ Session::get('company_state') }}</div>
-        <div>{{ Session::get('company_country_id') }}, {{ Session::get('company_zipCode') }}</div>
-        <div>+{{ "(".substr(Session::get('company_phone'), 0, 2).") ". substr(Session::get('company_phone'), 2, 9)}}</div>
-        <div>{{ Session::get('site_short_name') }}</div>
+    <div>{{ Session::get('company_street') }}</div>
+    <div>{{ Session::get('company_city') }}, {{ Session::get('company_state') }}</div>
+    <div>{{ Session::get('company_country_id') }}, {{ Session::get('company_zipCode') }}</div>
+    <div>+{{ "(".substr(Session::get('company_phone'), 0, 2).") ". substr(Session::get('company_phone'), 2, 9)}}</div>
+    <div>{{ Session::get('site_short_name') }}</div>
     </div>
     <div style="width:300px; float:left;font-size:15px; color:#383838; font-weight:400;">
       <div><strong>Bill To</strong></div>
@@ -63,27 +45,40 @@ tr{ height:40px;}
       <div>{{ !empty($customerInfo->billing_country_id) ? $customerInfo->billing_country_id : ''}}{{ !empty($customerInfo->billing_zip_code) ? ' ,'.$customerInfo->billing_zip_code : ''}}</div>
     </div>
     <div style="width:200px; float:left; text-align:right; font-size:15px; color:#383838; font-weight:400;">
-      <div><strong>Ship To</strong></div>
-      <div>{{ !empty($customerInfo->br_name) ? $customerInfo->br_name : ''}}</div>
-      <div>{{ !empty($customerInfo->shipping_street) ? $customerInfo->shipping_street :'' }}</div>
-      <div>{{ !empty($customerInfo->shipping_city) ? $customerInfo->shipping_city : ''}}{{ !empty($customerInfo->shipping_state) ? ', '.$customerInfo->shipping_state : ''}}</div>
-      <div>{{ !empty($customerInfo->shipping_country_id) ? $customerInfo->shipping_country_id :''}}{{ !empty($customerInfo->shipping_zip_code) ? ', '.$customerInfo->shipping_zip_code : ''}}</div>
+      <div><strong>Invoice No # {{$contractDataInvoice->reference}}</strong></div>
+      <div>Invocie Date : {{formatDate($contractDataInvoice->contract_date)}}</div>
+      <div>Due Date : {{formatDate($due_date)}}</div>    
+      @if($contractDataInvoice->total > 0)
+      @if($contractDataInvoice->paid_amount == 0)
+        <div style="font-weight:bold" >Status : Unpaid</div>
+      @elseif($contractDataInvoice->paid_amount > 0 && $contractDataInvoice->total > $contractDataInvoice->paid_amount )
+        <div style="font-weight:bold" >Status : Partially paid</div>
+      @elseif($contractDataInvoice->total<=$saleDataInvoice->paid_amount)
+        <div style="font-weight:bold" >Status : Paid</div>
+      @endif
+
+      @else
+       <div style="font-weight:bold" >Status : Paid</div>
+      @endif
+
     </div>
   </div>
   <div style="clear:both"></div>
   <div style="margin-top:30px;">
    <table style="width:100%; border-radius:2px; border:2px solid #d1d1d1; border-collapse: collapse;">
       <tr style="background-color:#f0f0f0; border-bottom:1px solid #d1d1d1; text-align:center; font-size:13px; font-weight:bold;">
+      
       <td>S/N</td>
-      <td>Item Description</td>
+      <td>Item Name</td>
       <td>Quantity</td>
       <td>Price({{Session::get('currency_symbol')}})</td>
       <td>Tax(%)</td>
       <td>Discount(%)</td>
-      <td style="padding-right:10px;text-align:right">Amount($)</td>
+      <td style="padding-right:10px;text-align:right">Amount({{Session::get('currency_symbol')}})</td>
+    
     </tr>
 
-   <?php
+  <?php
     $taxAmount      = 0;
     $subTotalAmount = 0;
     $qtyTotal       = 0;
@@ -100,8 +95,9 @@ tr{ height:40px;}
     $discountPriceAmount = ($price-$discount);
     $qtyTotal +=$item['quantity']; 
     $subTotalAmount += $discountPriceAmount; 
-   ?> 
-      
+   ?>
+   @if($item['quantity']>0)
+
     <tr style="background-color:#fff; text-align:center; font-size:13px; font-weight:normal;">
       <td>{{++$i}}</td>
       <td>{{$item['description']}}</td>
@@ -114,11 +110,12 @@ tr{ height:40px;}
   <?php
     $sum = $item['quantity']+$sum;
   ?>
+  @endif
   @endforeach
 
        <?php
-       $subTotalDiscountPrice = ($subTotalAmount*$contractData->discount_percent)/100;
-       $subTotalAmount = number_format(($subTotalAmount-$subTotalDiscountPrice), 2, '.', ',');
+       $subTotalDiscount = ($subTotalAmount*$contractDataInvoice->discount_percent)/100;
+       $subTotalAmount = $subTotalAmount-$subTotalDiscount;
        ?>
 
     <tr style="background-color:#fff; text-align:right; font-size:13px; font-weight:normal; height:100px;">
@@ -130,12 +127,10 @@ tr{ height:40px;}
 
       <td style="text-align:right; padding-right:10px;border-bottom:none">
         {{$sum}}<br />
-       {{number_format(($contractData->discount_percent),2,'.',',')}}<br/>
+       {{number_format(($contractDataInvoice->discount_percent),2,'.',',')}}<br/>
        {{Session::get('currency_symbol').number_format(($subTotalAmount),2,'.',',')}}<br/>
       </td>
     </tr>
-
-
 
     @foreach($taxInfo as $rate=>$tax_amount)
     @if($rate != 0)
@@ -152,13 +147,31 @@ tr{ height:40px;}
       </td>
     </tr>     
     @endif 
-    @endforeach 
+    @endforeach
+
     <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">
-      <td colspan="6" style="text-align:right;"><strong>Grand Total</strong></td>
-      <td style="text-align:right; padding-right:10px"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount),2,'.',',')}}</strong></td>
+      <td colspan="6" style="text-align:right;border-bottom:none"><strong>Grand Total</strong></td>
+      <td style="text-align:right; padding-right:10px;border-bottom:none"><strong>{{Session::get('currency_symbol').number_format(($subTotalAmount+$taxAmount),2,'.',',')}}</strong></td>
     </tr>
-   </table> 
+    <tr style="text-align:right; font-size:13px; font-weight:normal;">
+      <td colspan="6" style="text-align:right;">Paid Amount</td>
+      <td style="text-align:right; padding-right:10px;">{{Session::get('currency_symbol').number_format(($contractDataInvoice->paid_amount),2,'.',',')}}</td>
+    </tr>
+    <tr style="background-color:#f0f0f0; text-align:right; font-size:13px; font-weight:normal;">
+      <td colspan="6" style="text-align:right;"><strong>Due Amount</strong></td>
+      <td style="text-align:right; padding-right:10px"><strong>
+        @if(($subTotalAmount+$taxAmount-$contractDataInvoice->paid_amount)< 0)
+        -{{Session::get('currency_symbol').number_format(abs($subTotalAmount+$taxAmount-$contractDataInvoice->paid_amount),2,'.',',')}}
+       @else
+       {{Session::get('currency_symbol').number_format(abs($subTotalAmount+$taxAmount-$contractDataInvoice->paid_amount),2,'.',',')}}
+       @endif
+       </strong></td>
+    </tr>
+   </table>
     </div>
+  <script type="text/javascript">
+      window.onload = function() { window.print(); }
+ </script>    
   </div>
 </body>
 </html>

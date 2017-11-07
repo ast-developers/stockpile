@@ -8,7 +8,7 @@
         <div class="box box-default">
         <!-- /.box-header -->
         <div class="box-body">
-        <form action="{{url('contract/save')}}" method="POST" id="salesForm">
+        <form action="{{url('contract/sales/save')}}" method="POST" id="salesForm">
         <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
         <div class="row">
             
@@ -90,8 +90,8 @@
             <div class="form-group">
                 <label for="exampleInputEmail1">{{ trans('message.table.reference') }}<span class="text-danger"> *</span></label>
                 <div class="input-group">
-                   <div class="input-group-addon">JC-</div>
-                   <input id="reference_no" class="form-control" value="{{ sprintf("%04d", $contract_count+1)}}" type="text">
+                   <div class="input-group-addon">INV-</div>
+                   <input id="reference_no" class="form-control" value="{{ sprintf("%04d", $invoice_count+1)}}" type="text">
                    <input type="hidden"  name="reference" id="reference_no_write" value="">
                 </div>
                 <span id="errMsg" class="text-danger"></span>
@@ -234,7 +234,7 @@
 
         var taxOptionList = "{!! $tax_type !!}";
         $(document).ready(function(){
-          var refNo ='JC-'+$("#reference_no").val();
+          var refNo ='INV-'+$("#reference_no").val();
           $("#reference_no_write").val(refNo);
           $("#customer").on('change', function(){
           var debtor_no = $(this).val();
@@ -264,7 +264,7 @@
               $('#btnSubmit').removeAttr('disabled');
              }
 
-            var ref = 'JC-'+$(this).val();
+            var ref = 'INV-'+$(this).val();
             $("#reference_no_write").val(ref);
           $.ajax({
             method: "POST",

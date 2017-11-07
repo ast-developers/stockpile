@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-
     <!-- Main content -->
     <section class="content">
 
@@ -8,11 +7,11 @@
       <div class="box-body">
         <div class="row">
           <div class="col-md-10">
-           <div class="top-bar-title padding-bottom">{{ trans('message.extra_text.sales_orders') }}</div>
+           <div class="top-bar-title padding-bottom">{{ trans('message.extra_text.invoices') }}</div>
           </div> 
           <div class="col-md-2">
-            @if(!empty(Session::get('order_add')))
-              <a href="{{ url('order/add') }}" class="btn btn-block btn-default btn-flat btn-border-orange"><span class="fa fa-plus"> &nbsp;</span>{{ trans('message.form.add_new_order') }}</a>
+            @if(!empty(Session::get('sales_add')))
+              <a href="{{ url('sales/add') }}" class="btn btn-block btn-default btn-flat btn-border-orange"><span class="fa fa-plus"> &nbsp;</span>{{ trans('message.extra_text.new_sales_invoice') }}</a>
             @endif
           </div>
         </div>
@@ -20,20 +19,15 @@
     </div>
       <div class="box">
         <div class="box-body">
-
                 <ul class="nav nav-tabs cus" role="tablist">
-                    
-                    <li>
-                      <a href='{{url("contract/list")}}' >{{ trans('message.extra_text.all') }}</a>
-                    </li>
-                    
-                    <li class="active">
-                      <a href="{{url("contract/filtering")}}" >{{ trans('message.extra_text.filter') }}</a>
-                    </li>
-
+                <li>
+                 <a href='{{url("contract/sales/list")}}' >{{ trans('message.extra_text.all') }}</a>
+                 </li>
+                 <li class="active">
+                 <a href="{{url("contract/sales/filtering")}}" >{{ trans('message.extra_text.filter') }}</a>
+                 </li>
                </ul>
-
-          <form class="form-horizontal" action="{{ url('contract/filtering') }}" method="GET" id='orderListFilter'>
+          <form class="form-horizontal" action="{{ url('contract/sales/filtering') }}" method="GET" id='orderListFilter'>
           <div class="col-md-12">
             <div class="row">
 
@@ -59,20 +53,18 @@
                     <input class="form-control" id="to" type="text" name="to" value="{{$to}}" required>
                   </div>
                   </div>
+               </div> 
+
+               <div class="col-md-2">
+                 <div class="form-group" style="margin-right: 5px">
+                  <label for="sel1">{{ trans('message.report.product') }}</label>
+                  <div class="input-group">
+                    <input class="form-control" type="text" name="product" id="product" value="{{(isset($item)) ? $item : ''}}">
+                  </div>
+                </div>
                </div>
 
-
-                <div class="col-md-2">
-                    <div class="form-group" style="margin-right: 5px">
-                        <label for="exampleInputEmail1">{{ trans('message.report.product') }}</label>
-                        <div class="input-group">
-                            <input class="form-control" id="product" type="text" name="product" value="{{$product}}">
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="col-md-2">
+               <div class="col-md-2">
                  <div class="form-group" style="margin-right: 5px">
                   <label for="sel1">{{ trans('message.form.customer') }}</label>
                   <div class="input-group">
@@ -117,79 +109,63 @@
              </div>
           </div>
           </form>
+
         </div>
+        
       </div><!--Filtering Box End-->
-
-
+      <!-- Default box -->
       <div class="box">
+            <!-- /.box-header -->
             <div class="box-body">
               <div class="table-responsive">
-                <table id="contractList" class="table table-bordered table-striped">
+                <table id="example1" class="table table-bordered table-striped">
                   <thead>
                   <tr>
-                    <th>{{ trans('message.table.contract') }} #</th>
+                    <th>{{ trans('message.table.invoice') }}</th>
+                    <th>{{ trans('message.table.order_no') }}</th>
                     <th>{{ trans('message.table.customer_name') }}</th>
-                    <th>{{ trans('message.extra_text.quantity') }}</th>
-                    <th>{{ trans('message.invoice.invoiced') }}</th>
-                    <th>{{ trans('message.invoice.paid') }}</th>
-                    <th>{{ trans('message.table.total') }}</th>
-                    <th>{{ trans('message.table.contract_date') }}</th>
+                    <th>{{ trans('message.table.total_price') }}</th>
+                    <th>{{ trans('message.table.paid_amount') }}</th>
+                    <th>{{ trans('message.table.paid_status') }}</th>
+                    <th>{{ trans('message.invoice.invoice_date') }}</th>
                     <th width="5%">{{ trans('message.table.action') }}</th>
                   </tr>
                   </thead>
                   <tbody>
-                  @foreach($contractData as $data)
-                 @if($data->ordered_quantity>0)
+                  @foreach($salesData as $data)
                   <tr>
-                    <td><a href="{{URL::to('/')}}/contract/view-contract-details/{{$data->job_contract_no}}">{{$data->reference }}</a></td>
-                    <td><a href="{{URL::to('/')}}/customer/edit/{{$data->debtor_no}}">{{ $data->name }}</a></td>
-                    <td>{{ $data->ordered_quantity }}</td>
-
-                      <?php
-                      //call a helper function to fetch invoiced quantity for jon contract
-                      $invoiced_quantity = fetch_jobContractInvoicedCount($data->job_contract_no);
-                      ?>
-
-                      @if( $invoiced_quantity == 0 )
-                          <td><span class="fa fa-circle-thin"></span></td>
-                      @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)== 0)
-                          <td><span class="fa fa-circle"></span></td>
-                      @elseif(abs($data->ordered_quantity) - abs($invoiced_quantity)>0)
-                          <td><span class="glyphicon glyphicon-adjust"></span></td>
-                      @endif
-
-
-                    @if( $data->paid_amount == 0 )
-                      <td><span class="fa fa-circle-thin"></span></td>
-                    @elseif(abs($data->order_amount) - abs($data->paid_amount) == 0)
-                      <td><span class="fa fa-circle"></span></td>
-                    @elseif(abs($data->order_amount) - abs($data->paid_amount)>0)
-                      <td><span class="glyphicon glyphicon-adjust"></span></td>
-                    @elseif(abs($data->order_amount) - abs($data->paid_amount)<0)
-                      <td><span class="fa fa-circle"></span></td>
+                    <td><a href="{{URL::to('/')}}/contract/invoice/view-detail-invoice/{{$data->contract_reference_id.'/'.$data->job_contract_no}}">{{$data->reference }}</a></td>
+                    <td><a href="{{URL::to('/')}}/contract/view-contract-details/{{$data->contract_reference_id}}">{{ $data->contract_reference }}</a></td>
+                    <td><a href="{{url("customer/edit/$data->debtor_no")}}">{{ $data->cus_name }}</a></td>
+                    <td>{{ Session::get('currency_symbol').number_format($data->total,2,'.',',') }}</td>
+                    <td>{{ Session::get('currency_symbol').number_format($data->paid_amount,2,'.',',') }}</td>
+  
+                    @if($data->paid_amount == 0)
+                      <td><span class="label label-danger">{{ trans('message.invoice.unpaid')}}</span></td>
+                    @elseif($data->paid_amount > 0 && $data->total > $data->paid_amount )
+                      <td><span class="label label-warning">{{ trans('message.invoice.partially_paid')}}</span></td>
+                    @elseif($data->paid_amount<=$data->paid_amount)
+                      <td><span class="label label-success">{{ trans('message.invoice.paid')}}</span></td>
                     @endif
 
-                    <td>{{ Session::get('currency_symbol').number_format($data->order_amount,2,'.',',') }}</td>
                     <td>{{formatDate($data->contract_date)}}</td>
                     <td>
-                    
-
-                    <a  title="Edit" class="btn btn-xs btn-primary" href='{{ url("contract/edit/$data->job_contract_no") }}'><span class="fa fa-edit"></span></a> &nbsp;
-
-
-                    <form method="POST" action="{{ url("contract/delete/$data->job_contract_no") }}" accept-charset="UTF-8" style="display:inline">
-                        {!! csrf_field() !!}
-
-                        <button title="delete" class="btn btn-xs btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_order') }}" data-message="{{ trans('message.invoice.delete_contract_confirm') }}">
-                            <i class="glyphicon glyphicon-trash"></i>
-                        </button>
-                    </form>
+                    @if(!empty(Session::get('sales_edit')))
+                        <a  title="edit" class="btn btn-xs btn-primary" href='{{ url("contract/sales/edit/$data->job_contract_no") }}'><span class="fa fa-edit"></span></a> &nbsp;
+                    @endif
+                    @if(!empty(Session::get('sales_delete')))
+                       <form method="POST" action="{{ url("contract/invoice/delete/$data->job_contract_no") }}" accept-charset="UTF-8" style="display:inline">
+                          {!! csrf_field() !!}
+                          <button class="btn btn-xs btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{ trans('message.invoice.delete_invoice') }}" data-message="{{ trans('message.invoice.delete_invoice_confirm') }}">
+                             <i class="fa fa-remove" aria-hidden="true"></i>
+                          </button>
+                      </form> 
+                      @endif
 
                     </td>
                   </tr>
-                  @endif
                  @endforeach
-                  </tbody>
+                 
                 </table>
               </div>
             </div>
@@ -200,9 +176,7 @@
     </section>
 
 @include('layouts.includes.message_boxes')
-
 @endsection
-
 @section('js')
     <script type="text/javascript">
     $('.select2').select2({});
@@ -219,7 +193,7 @@
     });
     
   $(function () {
-    $("#contractList").DataTable({
+    $("#example1").DataTable({
       "order": [],
       "columnDefs": [ {
         "targets": 7,

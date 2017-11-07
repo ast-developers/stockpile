@@ -117,7 +117,6 @@
                           <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.total_qty') }}</td><td align="right" colspan="2">{{$units}}</td></tr>
                          <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.discount') }}(%)</td><td align="right" colspan="2">{{ $contractData->discount_percent }}</td></tr>
                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.sub_total') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').$subTotal }}</td></tr>
-                         <tr class="tableInfos"><td colspan="5" align="right">{{ trans('message.table.delivery_price') }}</td><td align="right" colspan="2">{{ Session::get('currency_symbol').($contractData->delivery_price ? (number_format($contractData->delivery_price,2,'.',',')): '') }}</td></tr>
                         @foreach($taxType as $rate=>$tax_amount)
                         @if($rate != 0)
                         <tr><td colspan="5" align="right">Plus Tax({{$rate}}%)</td><td colspan="2" class="text-right">{{ Session::get('currency_symbol').number_format($tax_amount,2,'.',',') }}</td></tr>

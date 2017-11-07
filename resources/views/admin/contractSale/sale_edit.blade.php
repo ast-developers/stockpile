@@ -8,17 +8,18 @@
         <div class="box box-default">
         <!-- /.box-header -->
         <div class="box-body">
-          <h4 class="text-info">{{ trans('message.invoice.job_contract_no') }} # {{$contractData->reference}}</h4>
-          <div class="clearfix"></div>
-          <form action="{{url('contract/save-manual-invoice')}}" method="POST" id="salesForm">
-          <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
-          <input type="hidden" value="{{$contractData->job_contract_no}}" name="job_contract_no" id="job_contract_no">
-          <input type="hidden" value="{{$contractData->reference}}" name="contract_reference" id="contract_reference">
-          <div class="row">
+        <h4 class="text-info">{{trans('message.invoice.invoice_no')}} # <a href="{{url('/contract/invoice/view-detail-invoice/'.$inoviceInfo->contract_reference_id.'/'.$contractData->job_contract_no)}}">{{$inoviceInfo->reference}}</a></h4>
+        <div class="clearfix"></div>
+        <form action="{{url('contract/sales/update')}}" method="POST" id="salesForm">
+        <input type="hidden" value="{{csrf_token()}}" name="_token" id="token">
+        <input type="hidden" value="{{$contractData->job_contract_no}}" name="job_contract_no" id="job_contract_no">
+        <input type="hidden" value="{{$contractData->contract_reference}}" name="contract_reference" id="contract_reference">
+        <input type="hidden" value="{{$inoviceInfo->contract_reference_id}}" name="contract_reference_id">
+        <div class="row">
             
             <div class="col-md-3">
               <div class="form-group">
-                <label for="exampleInputEmail1">{{ trans('message.form.customer') }}<span class="text-danger"> *</span></label>
+                <label for="exampleInputEmail1">{{ trans('message.form.customer') }}</label>
                 <select class="form-control select2" name="debtor_no" id="customer" disabled>
                 <option value="">{{ trans('message.form.select_one') }}</option>
                 @foreach($customerData as $data)
@@ -31,7 +32,7 @@
             <div class="col-md-3">
               <!-- /.form-group -->
               <div class="form-group">
-                <label for="exampleInputEmail1">{{ trans('message.form.customer_branch') }}<span class="text-danger"> *</span></label>
+                <label for="exampleInputEmail1">{{ trans('message.form.customer_branch') }}</label>
                 <select class="form-control select2" name="branch_id" id="branch" disabled>
                 <option value="">{{ trans('message.form.select_one') }}</option>
                 @if(!empty($branchs))
@@ -47,12 +48,15 @@
 
             <div class="col-md-3">
               <div class="form-group">
-                  <label for="exampleInputEmail1">{{ trans('message.form.from_location') }}<span class="text-danger"> *</span></label>
-                     <select class="form-control select2" name="from_stk_loc" id="loc">
+                  <label for="exampleInputEmail1">{{ trans('message.form.from_location') }}</label>
+                     <select class="form-control select2" name="from_stk_loc" id="loc" disabled>
+                    
                     @foreach($locData as $data)
                       <option value="{{$data->loc_code}}" <?= ($data->loc_code == $contractData->from_stk_loc ? 'selected':'')?>>{{$data->location_name}}</option>
                     @endforeach
                     </select>
+
+                    <input type="hidden" name="from_stk_loc" value="{{$contractData->from_stk_loc}}" />
               </div>
             </div>
 
@@ -63,14 +67,14 @@
                   <div class="input-group-addon">
                     <i class="fa fa-calendar"></i>
                   </div>
-                  <input class="form-control" id="datepicker" type="text" name="contract_date" value="<?= isset($contractData->contract_date) ? $contractData->contract_date :'' ?>">
+                  <input readonly class="form-control" id="datepickers" type="text" name="contract_date" value="<?= isset($contractData->contract_date) ? formatDate($contractData->contract_date) :'' ?>">
                 </div>
                 <!-- /.input group -->
               </div>
             </div>
             <div class="col-md-3">
               <div class="form-group">
-                  <label for="exampleInputEmail1">{{ trans('message.extra_text.payment_method') }}<span class="text-danger"> *</span></label>
+                  <label for="exampleInputEmail1">{{ trans('message.extra_text.payment_method') }}</label>
                      <select class="form-control select2" name="payment_id">
                     
                     @foreach($payments as $payment)
@@ -82,10 +86,10 @@
 
             <div class="col-md-3">
               <div class="form-group">
-                  <label for="exampleInputEmail1">{{ trans('message.form.payment_term') }}<span class="text-danger"> *</span></label>
+                  <label for="exampleInputEmail1">{{ trans('message.form.payment_term') }}</label>
                     <select class="form-control select2" name="payment_term">
                     @foreach($paymentTerms as $term)
-                      <option value="{{$term->id}}" <?= ($term->defaults == 1 ? 'selected':'')?>>{{$term->terms}}</option>
+                      <option value="{{$term->id}}" <?= ($term->id == $contractData->payment_term ? 'selected':'')?>>{{$term->terms}}</option>
                     @endforeach
                     </select>
               </div>
@@ -94,33 +98,35 @@
             <div class="col-md-3">
               <div class="form-group">
                   <label for="exampleInputEmail1">{{ trans('message.table.reference') }}<span class="text-danger"> *</span></label>
+                  <?php
+                    $refArray = explode('-',$contractData->reference);
+                  ?>
                 <div class="input-group">
-                   <div class="input-group-addon">INV-</div>
-                   <input id="reference_no" class="form-control" value="{{ sprintf("%04d", $invoice_count+1)}}" type="text">
-                   <input type="hidden"  name="reference" id="reference_no_write" value="INV-{{ sprintf("%04d", $invoice_count+1)}}">
+                   <div class="input-group-addon">{{ trans('message.table.inv') }}-</div>
+                   <input id="reference_no" class="form-control" value="<?= isset($refArray[1]) ? $refArray[1] :'' ?>" type="text" readonly>
+                   <input type="hidden"  name="reference" id="reference_no_write" value="{{$contractData->reference}}">
                 </div>
               </div>
               <span id="errMsg" class="text-danger"></span>
             </div>
         </div>
 
+            <div class="row">
 
-          <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">{{ trans('message.table.discount_type') }}</label>
+                        <select class="form-control select2" name="discount_type" id="discount_type" disabled>
+                            <option value="1" {{($contractData->discount_type==1) ? 'selected=selected' : ''}}>Per Item</option>
+                            <option value="2" {{($contractData->discount_type==2) ? 'selected=selected' : ''}}>Per Order</option>
+                        </select>
+                        <input type="hidden" name="discount_type" value="{{$contractData->discount_type}}" />
+                    </div>
+                </div>
 
-              <div class="col-md-3">
-                  <div class="form-group">
-                      <label for="exampleInputEmail1">{{ trans('message.table.discount_type') }}</label>
-                      <select class="form-control select2" name="discount_type" id="discount_type" disabled>
-                          <option value="1" {{($contractData->discount_type==1) ? 'selected=selected' : ''}}>Per Item</option>
-                          <option value="2" {{($contractData->discount_type==2) ? 'selected=selected' : ''}}>Per Order</option>
-                      </select>
-                      <input type="hidden" name="discount_type" value="{{$contractData->discount_type}}" />
-                  </div>
-              </div>
+            </div>
 
-          </div>
-
-              <br>
+            <br>
 
         <div class="row">
           <div class="col-md-12">
@@ -139,64 +145,46 @@
                     <th width="10%" class="text-center">{{ trans('message.table.item_id') }}</th>
                     <th width="30%" class="text-center">{{ trans('message.table.description') }}</th>
                     <th width="10%" class="text-center">{{ trans('message.table.quantity') }}</th>
-                    <th width="10%" class="text-center">{{ trans('message.table.rate') }}</th>
-                    <th width="10%" class="text-center">{{ trans('message.table.tax') }}(%)</th>
-                    <th class="text-center" width="10%">{{ trans('message.table.discount') }}(%)</th>
-                    <th width="10%" class="text-center">{{ trans('message.table.amount') }}</th>
-                    <th style="width: 40px">{{ trans('message.table.action') }}</th>
+                    <th width="10%" class="text-center">{{ trans('message.table.rate') }}({{Session::get('currency_symbol')}})</th>
+                    <th width="10%" class="text-center">{{ trans('message.table.tax') }}({{Session::get('currency_symbol')}})</th>
+                     <th class="text-center" width="10%">{{ trans('message.table.discount') }}(%)</th>
+                    <th width="10%" class="text-center">{{ trans('message.table.amount') }}({{Session::get('currency_symbol')}})</th>
+                  <!--  <th style="width: 40px">{{ trans('message.table.action') }}</th>-->
                   </tr>
-
+                  <?php $rowCount = 0; ?>
                   @if(count($invoiceData)>0)
-                  <?php
-                    $totalPrice = 0;
-                    $qtyStatus = 0;
-                    $rowCount = 0;
-                  ?>
-                    @foreach($invoiceData as $k=>$result)
-
+                    @foreach($invoiceData as $result)
                         <?php $rowCount++; ?>
 
-                        @if($result->item_rest > 0)
-
-                        <tr class="" data-tax_type="{{$result->tax_rate}}" id="rowid{{$rowCount}}">
+                        <tr class="nr" data-tax_type="{{$result->tax_rate}}" id="rowid{{$rowCount}}">
                           <td class="text-center">{{$result->id}}<input type="hidden" name="stock_id[]" value="{{$result->stock_id}}"></td>
                           <td class="text-center">{{$result->description}}<input type="hidden" name="description[]" value="{{$result->description}}"></td>
-                          <td><input class="form-control text-center no_units" stock-id="{{$result->stock_id}}" min="0" data-id="{{$rowCount}}" id="qty_{{$rowCount}}" name="item_quantity[]" value="{{$result->item_rest}}" data-tax="{{$result->tax_rate}}" type="text"><input name="item_id[]" value="{{$rowCount}}" type="hidden"></td>
+                          <td><input class="form-control text-center no_units" stock-id="{{$result->stock_id}}" min="0" data-id="{{$rowCount}}" data-rate="{{$result->tax_rate}}" id="qty_{{$rowCount}}" name="item_quantity[]" value="{{$result->quantity}}" data-tax="{{$result->tax_rate}}" type="text"><input name="item_id[]" value="{{$rowCount}}" type="hidden"></td>
                           <td class="text-center"><input min="0" class="form-control text-center unitprice" name="unit_price[]" data-id="{{$rowCount}}" id="rate_id_{{$rowCount}}" value="{{$result->unit_price}}" data-tax="{{$result->tax_rate}}" type="text" readonly></td>
                           <td class="text-center">{{$result->tax_rate}}%<input name="tax_id[]" value="{{$result->tax_type_id}}" type="hidden"></td>
                           <td class="text-center"><input class="form-control text-center discount" name="discount[]" data-tax="{{$result->tax_rate}}" data-input-id="{{$rowCount}}" id="discount_id_{{$rowCount}}" type="text" value="{{$result->discount_percent}}" readonly></td>
                           
                           <?php
-                            $priceAmount = ($result->item_rest*$result->unit_price);
+                            $priceAmount = ($result->quantity*$result->unit_price);
                             $discount = ($priceAmount*$result->discount_percent)/100;
                             $newPrice = ($priceAmount-$discount);
-                            $totalPrice += $newPrice; 
                           ?>
 
-                          <td><input amount-id="{{$rowCount}}" class="form-control text-center amount tax_item_price_{{$result->tax_rate}}" id="amount_{{$rowCount}}" value="{{$newPrice}}" name="item_price[]" data-tax-rate="{{$result->tax_rate}}" readonly="" type="text"></td>
-                          <td class="text-center"><button id="{{$rowCount}}" class="btn btn-xs btn-danger delete_item dfdf"><i class="glyphicon glyphicon-trash"></i></button></td>
+                          <td><input amount-id="{{$rowCount}}" class="form-control text-center amount tax_item_price_{{$result->tax_rate}}" id="amount_{{$rowCount}}" value="{{$newPrice}}" name="item_price[]" data-tax-rate="{{$result->tax_rate}}" readonly type="text"></td>
+                         <!-- <td class="text-center"><button id="{{$rowCount}}" class="btn btn-xs btn-danger delete_item"><i class="glyphicon glyphicon-trash"></i></button></td>-->
                         </tr>
-                       @endif
+
+
                     @endforeach
 
-                    <?php
-                      $tax = 0;
-                    ?>
-                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="{{$contractData->discount_percent}}" max="100" min="0" readonly></td></tr>
-                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+                    <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.discount') }}(%)</strong></td><td align="left" colspan="2"><input type="text" class="form-control" id="perOrderDiscount" name="perOrderDiscount" value="{{$contractData->discount_percent}}" max="100" min="0" readonly></td></tr>
+
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.sub_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><strong id="subTotal"></strong></td></tr>
+
                   @foreach($taxType as $rate=>$tax_amount)
                   <tr class="tax_rate_{{str_replace('.','_',$rate)}}"><td colspan="6" align="right">{{ trans('message.invoice.plus_tax') }}({{$rate}}%)</td><td colspan="2" class="item-taxs" id="totalTaxs_{{str_replace('.','_',$rate)}}">{{$tax_amount}}</td></tr>
-                    <?php
-                      $tax += $tax_amount;
-                    ?>
                   @endforeach
-
-                  <?php
-                  $subTotalDiscountPrice = ($totalPrice*$contractData->discount_percent)/100;
-                  $totalPrice = ($totalPrice-$subTotalDiscountPrice);
-                  ?>
-
-                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}</strong></td><td align="left" colspan="2"><input type='text' name="total" class="form-control" id = "grandTotal" value="{{$totalPrice+$tax}}" readonly></td></tr>
+                  <tr class="tableInfos"><td colspan="6" align="right"><strong>{{ trans('message.table.grand_total') }}({{Session::get('currency_symbol')}})</strong></td><td align="left" colspan="2"><input type='text' name="total" class="form-control" id = "grandTotal" value="{{$contractData->total}}" readonly></td></tr>
                   @endif
                   </tbody>
                 </table>
@@ -212,13 +200,15 @@
               <div class="col-md-12">
               <div class="form-group">
                     <label for="exampleInputEmail1">{{ trans('message.table.note') }}</label>
-                    <textarea placeholder="{{ trans('message.table.description') }} ..." rows="3" class="form-control" name="comments"></textarea>
+                    <textarea placeholder="{{ trans('message.table.description') }} ..." rows="3" class="form-control" name="comments">{{$contractData->comments}}</textarea>
                 </div>
-                <button type="submit" class="btn btn-primary btn-flat pull-right" id="btnSubmit" <?= ($qtyStatus == 1) ? 'disabled' : '' ?>>{{ trans('message.form.submit') }}</button>
+                <a href="{{url('/sales/list')}}" class="btn btn-info btn-flat">{{ trans('message.form.cancel') }}</a>
+                <button type="submit" class="btn btn-primary btn-flat pull-right" id="btnSubmit">{{ trans('message.form.submit') }}</button>
               </div>
         </div>
         </form>
-            <!-- /.col -->   
+            <!-- /.col -->
+            
             <!-- /.col -->
       </div>
           <!-- /.row -->
@@ -230,24 +220,15 @@
 @endsection
 @section('js')
     <script type="text/javascript">
-        var perOrderPercentage = '<?php echo $contractData->discount_percent; ?>';
-    </script>
-
-    <script type="text/javascript">
-
-      var refNo ='INV-'+$("#reference_no").val();
-      $("#reference_no_write").val(refNo);
-      var token = $("#token").val();
-
     $(function () {
         //Initialize Select2 Elements
         $(".select2").select2();
+
         $('#datepicker').datepicker({
             autoclose: true,
             todayHighlight: true,
             format: '{{Session::get('date_format_type')}}'
         });
-        $('#datepicker').datepicker('update', new Date()); 
 
         // Chech available quantity with selected location
         $("#loc").change(function(){
@@ -295,7 +276,12 @@
       var from_stk_loc = $("#loc").val();
       var order_reference = $("#contract_reference").val();
       var invoice_no = $("#job_contract_no").val();
-      //console.log(stock_id);
+
+       /* if(parseInt($(this).val()) == 0){
+            $("#quantityMessage").html("{{ trans('message.invoice.item_insufficient_message') }}");
+            $('#btnSubmit').attr('disabled', 'disabled');
+        }*/
+
       // check item quantity in store location
       $.ajax({
         method: "POST",
@@ -306,9 +292,8 @@
           var data = jQuery.parseJSON(data);
           
           if(data.status_no == 0){
-            $("#quantityMessage").html("{{trans('message.invoice.item_insufficient_message')}}");
+            $("#quantityMessage").html("{{ trans('message.invoice.item_insufficient_message') }}");
             $('#btnSubmit').attr('disabled', 'disabled');
-            $("#rowid"+id).addClass("insufficient");
           }else if(data.status_no == 1){
             $("#quantityMessage").html('');
             $('#btnSubmit').removeAttr('disabled');
@@ -338,9 +323,9 @@
 
       // Calculate subTotal
       var subTotal = calculateSubTotal();
-        var perOrderDiscount = parseFloat(perOrderPercentage);
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
         subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
-        $("#subTotal").html(subTotal);
+      $("#subTotal").html(subTotal);
 
       // Calculate taxTotal
       var taxTotal = calculateTaxTotal();
@@ -349,6 +334,8 @@
       $("#grandTotal").val(grandTotal);
 
     });
+
+
 
       /**
       * Calcualte Total tax
@@ -413,6 +400,14 @@
         return result;
       }
 
+    //Calculate disccount for per order
+    function calculatePerOrderDiscount(total, discount){
+        var finalDiscount = (discount * total)/100;
+        var totalAfterDiscount = total - finalDiscount;
+
+        return totalAfterDiscount;
+    }
+
 // Item form validation
     $('#salesForm').validate({
         rules: {
@@ -422,7 +417,7 @@
             from_stk_loc: {
                 required: true
             },
-            contract_date:{
+            ord_date:{
                required: true
             },
             reference:{
@@ -437,98 +432,12 @@
         }
     });
 
-    // Delete item row
-    $(document).ready(function(e){
-      $('#salesInvoice').on('click', '.delete_item', function(event) {
-        event.preventDefault();
-            var v = $(this).attr("id");
-
-            //console.log(v);return;
-            $(this).closest("tr").remove();
-
-            //Decrement for array count in row
-            var arrayCount = parseInt($("#arrayCount").val());
-            $("#arrayCount").val(arrayCount-1)
-
-            var itemTaxRow = $(this).closest('tr').data('tax_type');
-           
-            var count = $('tr[data-tax_type="'+itemTaxRow+'"]').size();
-          
-           if(count == 0){
-
-               $("tr.tax_rate_"+itemTaxRow).remove();
-
-                var subTotal = calculateSubTotal();
-               var perOrderDiscount = parseFloat(perOrderPercentage);
-               subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
-                $("#subTotal").html(subTotal);
-
-               //Fetch delivery fee
-               var deliveryFee = parseFloat($("#delivery_price").val());
-
-                // Calculate taxTotal
-                var taxTotal = calculateTaxTotal();
-                // Calculate GrandTotal
-                var grandTotal = (subTotal + taxTotal + deliveryFee);
-                $("#grandTotal").val(grandTotal);
-            }
-            
-            var subTotal = calculateSubTotal();
-          var perOrderDiscount = parseFloat(perOrderPercentage);
-          subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
-            $("#subTotal").html(subTotal);
-
-          //Fetch delivery fee
-          var deliveryFee = parseFloat($("#delivery_price").val());
-            
-            var newTaxInfo =createTaxId(itemTaxRow);
-            var priceByTaxTpye = calculateTotalByTaxType(itemTaxRow); 
-            var tax = caculateTax(priceByTaxTpye,itemTaxRow);
-            $("#totalTaxs_"+newTaxInfo).html(tax);
-           
-            var taxTotal = calculateTaxTotal();
-            // Calculate GrandTotal
-            var grandTotal = (subTotal + taxTotal + deliveryFee);
-            $("#grandTotal").val(grandTotal);           
-          var count = $('#purchaseInvoice tr.insufficient').length;
-          
-          if(count==0){
-           $("#quantityMessage").hide();
-            $('#btnSubmit').removeAttr('disabled');
-          }
-
-          
-        });
-
-
-    });
-
     $(document).ready(function(){
         var subTotal = calculateSubTotal();
-        var perOrderDiscount = parseFloat(perOrderPercentage);
+        var perOrderDiscount = parseFloat($('#perOrderDiscount').val());
         subTotal = calculatePerOrderDiscount(subTotal, perOrderDiscount);
         $("#subTotal").text(subTotal);
       });
-
-    $(document).on('keyup', '#reference_no', function () {
-        var ref = 'INV-'+$(this).val();
-        $("#reference_no_write").val(ref);
-        var token = $("#token").val();
-     
-      $.ajax({
-        method: "POST",
-        url: SITE_URL+"/sales/reference-validation",
-        data: { ref: ref,_token:token }
-      })
-        .done(function( data ) {
-          var data = jQuery.parseJSON(data);
-          if(data.status_no == 1){
-            $("#errMsg").html("{{ trans('message.invoice.exist') }}");
-          }else if(data.status_no == 0){
-            $("#errMsg").html("{{ trans('message.invoice.available') }}");
-          }
-        });
-    });
 
     </script>
 @endsection

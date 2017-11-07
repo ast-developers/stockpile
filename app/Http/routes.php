@@ -157,6 +157,20 @@
         Route::post('sales/quantity-validation-with-localtion','SalesController@quantityValidationWithLocaltion');
 		Route::post('sales/quantity-validation-edit-invoice','SalesController@quantityValidationEditInvoice');
 		Route::get('sales/filtering','SalesController@salesFiltering');
+
+
+		// JOb Contract Invoice/Sale
+		Route::get('contract/sales/list','ContractSalesController@index');
+		Route::get('contract/sales/add','ContractSalesController@create');
+		Route::post('contract/sales/save','ContractSalesController@store');
+		Route::get('contract/sales/edit/{id}','ContractSalesController@edit');
+		Route::post('contract/sales/update','ContractSalesController@update');
+		Route::post('contract/sales/delete/{id}','ContractSalesController@destroy');
+		Route::post('contract/sales/reference-validation','ContractSalesController@referenceValidation');
+		Route::post('contract/sales/get-branches','ContractSalesController@customerBranches');
+
+		Route::get('contract/sales/filtering','ContractSalesController@salesFiltering');
+
 		
 		// create sales order
 		Route::get('order/list','SalesOrderController@index');
@@ -196,6 +210,15 @@
 
 		Route::get('contract/view-contract-details/{id}','JobContractController@viewContractDetails');
 		Route::get('contract/filtering','JobContractController@orderFiltering');
+		Route::get('contract/pdf/{contract_id}','JobContractController@contractPdf');
+		Route::get('contract/print/{contract_id}','JobContractController@contractPrint');
+
+		Route::get('contract/manual-invoice-create/{id}','JobContractController@manualInvoiceCreate');
+		Route::post('contract/save-manual-invoice','JobContractController@storeManualInvoice');
+		Route::get('contract/auto-invoice-create/{id}','JobContractController@autoInvoiceCreate');
+
+		Route::post('contract/quantity-validation-with-localtion','JobContractController@quantityValidationWithLocaltion');
+		Route::post('contract/quantity-validation-edit-invoice','JobContractController@quantityValidationEditInvoice');
 
 
 		// Invoice Routing
@@ -205,6 +228,19 @@
 		Route::get('invoice/print/{order_id}/{invoice_id}','InvoiceController@invoicePrint');		
 		Route::post('invoice/delete/{id}','InvoiceController@destroy');
 		Route::get('invoice/delete-invoice/{id}','InvoiceController@destroy');
+
+
+
+		// Job Contract Invoice Routing
+		Route::get('contract/invoice/view-detail-invoice/{contractId}/{invoiceId}','ContractInvoiceController@viewInvoiceDetails');
+		Route::post('contract/invoice/email-invoice-info','ContractInvoiceController@sendInvoiceInformationByEmail');
+		Route::get('contract/invoice/pdf/{contract_id}/{invoice_id}','ContractInvoiceController@invoicePdf');
+		Route::get('contract/invoice/print/{contract_id}/{invoice_id}','ContractInvoiceController@invoicePrint');
+		Route::post('contract/invoice/delete/{id}','ContractInvoiceController@destroy');
+		Route::get('contract/invoice/delete-invoice/{id}','ContractInvoiceController@destroy');
+
+
+
 		// Customer 
 		Route::get('customer/list','CustomerController@index');
 		Route::get('create-customer','CustomerController@create');

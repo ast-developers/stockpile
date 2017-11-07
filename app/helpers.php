@@ -408,3 +408,8 @@ function fetch_jobContractInvoicedCount($contactId){
     $invoicedInfo = \DB::select("SELECT COALESCE(SUM(jcd.quantity), 0) AS invoiced_quantity, jcd.job_contract_no  FROM job_contract_details AS jcd LEFT JOIN job_contracts AS jc ON jc.job_contract_no=jcd.job_contract_no WHERE jc.contract_reference IS NOT NULL AND jcd.job_contract_no='$contactId'");
     return $invoicedInfo[0]->invoiced_quantity;
 }
+
+function getAvailableQtyByLocationForContract($stockid,$loc){
+    $data = \DB::select("SELECT SUM(`qty`) as qty FROM `job_contract_moves` WHERE `loc_code`='$loc' AND `stock_id`= '$stockid'");
+    return $data[0]->qty;
+}
