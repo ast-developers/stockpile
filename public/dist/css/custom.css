@@ -378,3 +378,17 @@ color: #367FA9;
     height:150px;
     overflow: auto;
 }
+
+
+/*Add more button related*/
+
+.add-more-action {
+	float: right;
+}
+
+.add-more-action button {
+	border: 0;
+	background: #3c8dbc;
+	color: #fff;
+	padding: 7px 15px;
+}

@@ -59,6 +59,39 @@
           </ul>
         </li>
 
+
+
+        <li <?= $menu == 'contracts' ? ' class="treeview active"' : 'treeview'?> >
+          <a href="#">
+            <i class="fa fa-list-ul"></i>
+            <span>{{ trans('message.sidebar.job_contracts') }}</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+          </a>
+          <ul class="treeview-menu">
+            <li <?= isset($sub_menu) && $sub_menu == 'contract/list' ? ' class="active"' : ''?> >
+              <a href="{{url('contract/list')}}">
+                <span>{{ trans('message.sidebar.job_contracts') }}</span>
+              </a>
+            </li>
+            <li <?= isset($sub_menu) && $sub_menu == 'contract/direct-invoice' ? ' class="active"' : ''?> >
+              <a href="{{url('contract/sales/list')}}">
+
+                <span>{{ trans('message.table.invoices') }}</span>
+              </a>
+            </li>
+            <li <?= isset($sub_menu) && $sub_menu == 'contract/payment/list' ? ' class="active"' : ''?> >
+              <a href="{{url('contract/payment/list')}}">
+
+                <span>{{ trans('message.extra_text.payments') }}</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+
+
         <li <?= $menu == 'supplier' ? ' class="active"' : ''?> >
           <a href="{{url('supplier')}}">
             <i class="fa fa-users"></i> <span>{{ trans('message.extra_text.supplier') }}</span>
