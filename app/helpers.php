@@ -425,3 +425,16 @@ function getTotalPaidAmountByContract($order_reference,$order_no){
     //d($dueAmount,1);
     return $dueAmount;
 }
+
+
+function getItemQtyByLocationNameForContract($location_code,$stock_id)
+{
+
+    $qty = DB::table('job_contract_moves')
+        ->where(['loc_code'=>strtoupper($location_code),'stock_id'=>$stock_id])
+        ->sum('qty');
+    if(empty($qty)){
+        $qty = 0;
+    }
+    return $qty;
+}

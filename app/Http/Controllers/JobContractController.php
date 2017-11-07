@@ -649,12 +649,12 @@ class JobContractController extends Controller
         $contractInfo = DB::table('job_contracts')->where('job_contract_no', '=', $contractNo)->first();
 
         // Check quantity is available or not on location
-        foreach ($invoiceInfos as $key => $res) {
-            $availableQty = getItemQtyByLocationName($res->location, $res->stock_id);
+        /*foreach ($invoiceInfos as $key => $res) {
+            $availableQty = getItemQtyByLocationNameForContract($res->location, $res->stock_id);
             if ($availableQty < $res->quantity) {
                 return redirect()->intended('contract/manual-invoice-create/' . $contractNo)->withErrors(['email' => "Item quantity not enough for this invoice !"]);
             }
-        }
+        }*/
 
         $payment_term      = DB::table('invoice_payment_terms')->where('defaults', 1)->select('id')->first();
         $total             = 0;
